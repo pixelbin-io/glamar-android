@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "793479838655",
+    "firebase_url": "https://artoolkit-f052e.firebaseio.com",
+    "project_id": "artoolkit-f052e",
+    "storage_bucket": "artoolkit-f052e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:793479838655:android:bac68c3b6531616244ff0a",
+        "android_client_info": {
+          "package_name": "com.fynd.artoolkit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "793479838655-a1ft00sp331fdu93o5ff40aionv14i8m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBASsBZJSdJtNmWR-vjbitlXczuMfomObk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "793479838655-a1ft00sp331fdu93o5ff40aionv14i8m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

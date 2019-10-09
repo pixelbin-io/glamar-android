@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <!-- Draw a 5dp width border around shape -->
+            <stroke
+                android:color="#CDF0A6"
+                android:width="2dp"
+                />
+        </shape>
+    </item>
+    <!-- Overlap the left, top and right border using background color  -->
+    <item
+        android:bottom="4dp"
+        android:top="4dp"
+        android:left="4dp"
+        android:right="4dp"
+        android:drawable="@drawable/eyeshadow_icon3">
+        <shape android:shape="oval">
+            <solid android:color="#CDF0A6"/>
+        </shape>
+    </item>
+</layer-list>
