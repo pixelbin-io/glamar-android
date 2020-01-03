@@ -199,8 +199,10 @@ public class StorageUtils {
 
 
 						sharedPreferences.edit().putString("lastImageUri",uri.toString());
+						sharedPreferences.edit().apply();
 						String val= sharedPreferences.getString("lastImageUri"," no ");
 						Log.d("diiff"," uri "+uri+" val "+videoUri+" path "+path);
+						Log.d("videocreated","videocreated get uri "+videoUri);
 
 						// it seems caller apps seem to prefer the content:// Uri rather than one based on a File
 						Activity activity = (Activity) context;

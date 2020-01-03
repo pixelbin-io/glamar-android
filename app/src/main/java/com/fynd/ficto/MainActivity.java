@@ -659,7 +659,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         cityPicker.setClampTransformProgressAfter(2);
 
 
-        videoButton.setVideoDuration(7000);
+        videoButton.setVideoDuration(5000);
         videoButton.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -680,19 +680,45 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             public void onEndRecord() {
                 videoButton.setVisibility(View.GONE);
                 Log.v("TEST", "onendrecord");
+                Log.d("videocreated","videocreated end record ");
                 faceContourDetectorProcessor.smallVideoEnd=true;
                 //updateGalleryIcon();
-                final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        //Do something after 100ms
-                        setimage(true);
+                if(currentItem==0){
 
-                        enableClick();
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            //Do something after 100ms
+                            setimage(true);
 
-                    }
-                }, 2000);
+                            enableClick();
+
+                        }
+                    }, 7000);
+
+                }else{
+
+                        final Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                //Do something after 100ms
+                                if(faceContourDetectorProcessor.videoCreatedMode>9){
+                                    setimage(true);
+
+                                    enableClick();
+
+                                }else{
+                                    dely2sec();
+                                }
+
+                            }
+                        }, 2000);
+
+
+
+                }
 
 
 
@@ -1138,6 +1164,25 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
 
+    public void dely2sec(){
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //Do something after 100ms
+                if(faceContourDetectorProcessor.videoCreatedMode>9){
+                    setimage(true);
+
+                    enableClick();
+                }
+                else{
+                    dely2sec();
+                }
+
+
+            }
+        }, 2000);
+    }
     public void setimage( boolean video){
 
         String  id=sharedpreferences.getString("lastImageUi","");
@@ -1146,12 +1191,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 .load(id)
                 .into(galleryIcon);
 
+        Log.d("videocreated","videocreated mode "+currentItem);
         storageUtils.getVideoURI(storageUtils.getImageFolder(id), true, true, sharedpreferences);
         Log.d("diiff", " uri " + sharedpreferences.getString("lastImageUri", "no"));
         if(!video){
             callforUri();
         }
         else if(video){
+            faceContourDetectorProcessor.videoCreatedMode=0;
             callforVideoUri();
         }
 
@@ -1192,10 +1239,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 //sharedpreferences.getString("lastImageUri","not");
                 Log.d("videoPath"," video call "+pastUri);
                 Log.d("diiff"," inside uri sh  "+sharedpreferences.getString("lastImageUri","not"));
-
+                Log.d("videocreated","videocreated uri ");
 
             }
-        }, 1000);
+        }, 100);
 
 
     }

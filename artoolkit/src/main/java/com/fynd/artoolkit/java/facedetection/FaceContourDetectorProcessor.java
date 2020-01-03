@@ -80,6 +80,7 @@ public class FaceContourDetectorProcessor extends VisionProcessorBase<List<Fireb
     public boolean smallVideo=false;
     public boolean smallVideoEnd=false;
     public boolean smallVideostart=false;
+    public int videoCreatedMode;
     FileChannelWrapper out = null;
     AndroidSequenceEncoder encoder;
     File sdCard;
@@ -271,7 +272,7 @@ public class FaceContourDetectorProcessor extends VisionProcessorBase<List<Fireb
                     context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
 
                     editor.putString("lastImageUi", file.getPath());
-                    editor.commit();
+                    editor.apply();
 
 //                    ExifInterface old=new ExifInterface(file.getPath());
 //
@@ -418,7 +419,8 @@ public class FaceContourDetectorProcessor extends VisionProcessorBase<List<Fireb
                     e.printStackTrace();
                 }
                 try {
-                    encoder = new AndroidSequenceEncoder(out, Rational.R(8, 1));
+                    videoCreatedMode=1;
+                    encoder = new AndroidSequenceEncoder(out, Rational.R(14, 1));
                     encoder.encodeImage(bitmapQueue.poll());
                     Log.d("videoPath"," set first ");
                 } catch (IOException e) {
@@ -448,8 +450,10 @@ public class FaceContourDetectorProcessor extends VisionProcessorBase<List<Fireb
                         values.put(MediaStore.Video.VideoColumns.DATA, file.getPath());
                         //values.put(MediaStore.Video.Media.DATA, file.getPath());
                         editor.putString("lastImageUi", file.getPath());
-                        editor.commit();
-                        Log.d("videoPath"," set end "+file.getPath());
+                        editor.apply();
+                        videoCreatedMode=10;
+
+                        Log.d("videocreated","videocreated set end "+file.getPath());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
