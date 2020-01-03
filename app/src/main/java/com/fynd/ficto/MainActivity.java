@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Display;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -248,6 +249,15 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         mHomeIcon.setChecked(true);
         mHomeIcon.setEnabled(false);
 
+        mContentContainer.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                return true;
+            }
+        });
+
         walkthroughtNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -259,13 +269,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 else if(walhkthroughCount==2){
                     colorPicker.setVisibility(View.INVISIBLE);
                     cityPicker.scrollToPosition(1);
+                    currentItem=1;
                     faceContourDetectorProcessor.setSelectedMakeupIndex(0);
 
                     walhkthroughCount=walhkthroughCount+1;
-                    View row = modePicker.getLayoutManager().findViewByPosition(0);
-                    int test1[] = new int[2];
-                    row.getLocationInWindow(test1);
-                    Log.d("UIPOInt"," "+test1[0]+" "+test1[1]);
+//                    View row = modePicker.getLayoutManager().findViewByPosition(0);
+//                    int test1[] = new int[2];
+//                    row.getLocationInWindow(test1);
+//                    Log.d("UIPOInt"," "+test1[0]+" "+test1[1]);
                     walkthroughtSecondImageContainer.setVisibility(View.GONE);
                     dotImageWalktrough.setVisibility(View.VISIBLE);
                     filterFirstWalkthrough.setVisibility(View.VISIBLE);
@@ -283,6 +294,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 }
                 else if(walhkthroughCount==3){
                     colorPicker.setVisibility(View.VISIBLE);
+                    walkthrougContainer.setClickable(false);
                     walkthrougContainer.setVisibility(View.GONE);
                     walhkthroughCount=1;
 
@@ -295,7 +307,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         walkthroughtSkip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                walkthrougContainer.setClickable(false);
                 walkthrougContainer.setVisibility(View.GONE);
+
                 editor.putBoolean("WalkThrough", false);
                 editor.commit();
 
@@ -1239,7 +1253,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         if(sharedpreferences.getBoolean("WalkThrough", true)){
             walkthrougContainer.setVisibility(View.VISIBLE);
         }else{
-            walkthrougContainer.setVisibility(View.VISIBLE);
+            walkthrougContainer.setVisibility(View.GONE);
         }
 
         mHomeIcon.setChecked(false);
