@@ -18,12 +18,15 @@ bool y_based_ascending_sorting(const cv::Point& i,const cv::Point& j){
 
 void fillpoly_x(cv::Mat& image,const std::vector<cv::Point>& points,cv::Scalar color){
     cv::Point p[1][points.size()];
-    for (int i = 0; i < points.size(); i++) {
-        p[0][i] = points[i];
+    if(points.size()!=0){
+        for (int i = 0; i < points.size(); i++) {
+            p[0][i] = points[i];
+        }
+        const cv::Point *ppt[1] = {p[0]};
+        int npt[] = {(int)points.size()};
+        cv::fillPoly(image, ppt, npt, 1, color);
     }
-    const cv::Point *ppt[1] = {p[0]};
-    int npt[] = {(int)points.size()};
-    cv::fillPoly(image, ppt, npt, 1, color);
+
 }
 
 std::vector<cv::Point> rescale_curve(const std::vector<cv::Point>& points,const float scaling_factor){

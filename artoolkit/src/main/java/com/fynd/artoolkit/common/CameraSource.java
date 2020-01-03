@@ -85,7 +85,9 @@ public class CameraSource {
   // These values may be requested by the caller.  Due to hardware limitations, we may need to
   // select close, but not exactly the same values for these.
   private final float requestedFps = 20.0f;
-  private static final int requestedPreviewWidth = 480;
+  //private static final int requestedPreviewWidth = 480;
+  //private static final int requestedPreviewHeight = 360;
+  private static final int requestedPreviewWidth = 640;
   private static final int requestedPreviewHeight = 360;
   private final boolean requestedAutoFocus = true;
 
@@ -300,6 +302,7 @@ public class CameraSource {
       parameters.setPictureSize(pictureSize.getWidth(), pictureSize.getHeight());
     }
     parameters.setPreviewSize(previewSize.getWidth(), previewSize.getHeight());
+    //parameters.setPreviewSize(640, 360);
     parameters.setPreviewFpsRange(
         previewFpsRange[Camera.Parameters.PREVIEW_FPS_MIN_INDEX],
         previewFpsRange[Camera.Parameters.PREVIEW_FPS_MAX_INDEX]);
@@ -470,7 +473,17 @@ public class CameraSource {
     List<Camera.Size> supportedPreviewSizes =parameters.getSupportedVideoSizes();
     List<Camera.Size> supportedPictureSizes =parameters.getSupportedPictureSizes();
     List<SizePair> validPreviewSizes = new ArrayList<>();
+    for (Camera.Size pictureSize : supportedPreviewSizes) {
+      Log.d("previewSizeFor"," height "+pictureSize.height+" width "+pictureSize.width );
+
+    }
+    for (Camera.Size pictureSize : supportedPictureSizes) {
+      Log.d("previewSizeFor","pic height "+pictureSize.height+" width "+pictureSize.width );
+
+    }
+
     Camera.Size optimalSize = getOptimalPreviewSize(supportedPreviewSizes, requestedPreviewWidth, requestedPreviewHeight);
+    Log.d("previewSizeFor","pic optimalSize height "+optimalSize.height+" width "+optimalSize.width );
     double optimalSizeAspectRatio=(double) optimalSize.height/optimalSize.width;
     for (Camera.Size pictureSize : supportedPictureSizes) {
       float pictureAspectRatio = (float) pictureSize.height/ (float) pictureSize.width ;

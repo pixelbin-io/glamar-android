@@ -1,4 +1,31 @@
+buildscript {
+
+    repositories {
+        google()
+        jcenter()
+        maven { url 'https://maven.fabric.io/public' }
+
+    }
+
+    ext {
+        ARTIFACT_USERNAME="aml_team"
+        ARTIFACT_PASSWORD="captureretail008"
+        artifactPublishPath= 'com.fynd'
+        libraryPublish = 'snapshot'
+    }
+
+    dependencies {
+
+
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.9.7"
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
 apply plugin: 'com.android.library'
+apply from: "publish_build.gradle"
+
+
 
 android {
     compileSdkVersion 29
@@ -9,7 +36,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0"
+        versionName "1.1"
 
         multiDexEnabled true
         externalNativeBuild {
@@ -22,6 +49,7 @@ android {
         consumerProguardFiles 'consumer-rules.pro'
 
     }
+
 
     aaptOptions {
         noCompress "tflite"
@@ -43,43 +71,93 @@ android {
             version "3.10.2"
         }
     }
+    configurations.all {
+        resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.2'
+    }
+
+
+
+
 
 
 }
+repositories {
+    maven {
+        url "http://artifactory.gofynd.com/artifactory/android-release-local"
+        credentials {
+            username = "aml_team"
+            password = "captureretail008"
+        }
+    }
+
+    mavenCentral()
+    jcenter()
+    google()
+    maven { url 'https://maven.google.com' }
+    maven { url 'https://jitpack.io' }
+    flatDir {
+        dirs 'src/main/libs'
+        dirs 'libs'
+    }
+}
+
+afterEvaluate {
+    def debugFile = file("$buildDir/outputs/aar/artoolkit-debug.aar")
+    tasks.named("assembleDebug").configure {
+        doLast {
+            debugFile.renameTo("$buildDir/outputs/aar/ficto-snapshot.aar")
+        }
+    }
+    tasks.named("assembleRelease").configure {
+        doLast {
+            debugFile.renameTo("$buildDir/outputs/aar/ficto-release.aar")
+        }
+    }
+}
+
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+
+    api 'androidx.appcompat:appcompat:1.1.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    implementation 'petrov.kristiyan:colorpicker-library:1.1.10'
+    api 'petrov.kristiyan:colorpicker-library:1.1.10'
 
-    implementation 'androidx.camera:camera-camera2:1.0.0-alpha01'
-    implementation 'androidx.camera:camera-core:1.0.0-alpha02'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.media:media:1.0.1'
-    implementation 'com.google.android.material:material:1.0.0'
+    api 'androidx.camera:camera-camera2:1.0.0-alpha01'
+    api 'androidx.camera:camera-core:1.0.0-alpha02'
+    api 'androidx.constraintlayout:constraintlayout:1.1.3'
+    api 'androidx.legacy:legacy-support-v4:1.0.0'
+    api 'androidx.media:media:1.0.1'
+    api 'com.google.android.material:material:1.0.0'
 
     // ARTOOLKIT dependencies
-    implementation 'com.google.firebase:firebase-ml-vision:23.0.0'
+    api 'com.google.firebase:firebase-ml-vision:23.0.0'
     // Image Labeling model.
-    implementation 'com.google.firebase:firebase-ml-vision-image-label-model:18.0.0'
+    api 'com.google.firebase:firebase-ml-vision-image-label-model:18.0.0'
     // Face model
-    implementation 'com.google.firebase:firebase-ml-vision-face-model:18.0.0'
+    api 'com.google.firebase:firebase-ml-vision-face-model:18.0.0'
     // Custom model
-    implementation 'com.google.firebase:firebase-ml-model-interpreter:21.0.0'
+    api 'com.google.firebase:firebase-ml-model-interpreter:21.0.0'
     // Object model
-    implementation 'com.google.firebase:firebase-ml-vision-object-detection-model:19.0.1'
+    api 'com.google.firebase:firebase-ml-vision-object-detection-model:19.0.1'
     // AutoML model
-    implementation 'com.google.firebase:firebase-ml-vision-automl:18.0.1'
+    api 'com.google.firebase:firebase-ml-vision-automl:18.0.1'
+    api 'org.jcodec:jcodec:0.2.3'
+    api 'org.jcodec:jcodec-android:0.2.3'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    compile project(path: ':opencv411')
-    implementation 'org.jetbrains:annotations-java5:15.0'
+    //compile project(path: ':opencv411')
+    api('com.fynd:opencv411:1.0-snapshot@aar') {
+        transitive = true
+    }
+    //api(name:'opencv411-snapshot', ext:'aar')
+    api 'org.jetbrains:annotations-java5:15.0'
+   
 }
 apply plugin: 'com.google.gms.google-services'
+

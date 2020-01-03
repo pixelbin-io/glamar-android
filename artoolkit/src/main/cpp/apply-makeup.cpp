@@ -17,6 +17,7 @@
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
 
 void smooth_and_color(cv::Mat& image,cv::Mat& float_mask,cv::Mat& color_pallete,int kernel_size){
+
     image.convertTo(image, CV_32FC3);
     cv::GaussianBlur(float_mask,float_mask,cv::Size(kernel_size,kernel_size),0);
     cv::multiply(color_pallete,float_mask,color_pallete);
@@ -24,6 +25,7 @@ void smooth_and_color(cv::Mat& image,cv::Mat& float_mask,cv::Mat& color_pallete,
     cv::multiply(image,float_mask,float_mask);
     cv::add(float_mask,color_pallete,image);
     image.convertTo(image,CV_8UC3);
+
 }
 
 void apply_lipstick(cv::Mat &image,const cv::Scalar& color_lips, float alpha,
@@ -54,6 +56,10 @@ void apply_blush(cv::Mat& image,cv::Scalar color , float alpha,
             cv::Point center_2,cv::Size size_2,double rotation_angle_2,double start_angle_2,double end_angle_2,bool apply_blush_2,
             std::vector<cv::Point> face_points) {
 
+    if(image.empty()){
+
+        return;
+    }
     int kernel_size = 51;
     cv::Mat color_pallete(image.size(),CV_32FC3,color);
     cv::Mat float_mask(image.size(),CV_32FC3,cv::Scalar(0,0,0));

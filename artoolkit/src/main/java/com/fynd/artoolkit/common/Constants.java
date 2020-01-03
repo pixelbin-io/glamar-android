@@ -13,7 +13,7 @@ public class Constants {
             "#8B0000", "#800000", "#FF6347", "#0000A0", "#000000","#f88379","#FFE5B4","#FFA500","#7a3d3a","#D2691E"));
 
     // Dont change order or Below list since same order is used in native-lib
-    public static final List<String> makeUpList = new ArrayList<>(Arrays.asList("Lipstick", "Blush", "Eyeliner", "Eyeshadow"));
+    public static final List<String> makeUpList = new ArrayList<>(Arrays.asList("Lipstick", "Blush", "Eyeliner", "Eyeshadow","earing","kajal"));
     public static final List<Float> colorAlphaList = new ArrayList<>(Arrays.asList(0.89f, 0.91f, 0.8f, 0.93f));
 
 }

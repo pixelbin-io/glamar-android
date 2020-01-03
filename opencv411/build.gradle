@@ -87,8 +87,34 @@
 //       }
 //   }
 //
+buildscript {
 
+    repositories {
+        google()
+        jcenter()
+        maven { url 'https://maven.fabric.io/public' }
+
+    }
+
+    ext {
+        ARTIFACT_USERNAME="aml_team"
+        ARTIFACT_PASSWORD="captureretail008"
+        artifactPublishPath= 'com.fynd'
+        libraryPublish = 'snapshot'
+    }
+
+    dependencies {
+
+
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.9.7"
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
 apply plugin: 'com.android.library'
+apply from: "publish_build.gradle"
+
+
 
 println "OpenCV: " + project.buildscript.sourceFile
 
@@ -99,6 +125,8 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
 
         externalNativeBuild {
             cmake {
@@ -144,5 +172,19 @@ android {
     }
 }
 
+afterEvaluate {
+    def debugFile = file("$buildDir/outputs/aar/opencv411-debug.aar")
+    tasks.named("assembleDebug").configure {
+        doLast {
+            debugFile.renameTo("$buildDir/outputs/aar/opencv411-snapshot.aar")
+        }
+    }
+    tasks.named("assembleRelease").configure {
+        doLast {
+            debugFile.renameTo("$buildDir/outputs/aar/opencv411-release.aar")
+        }
+    }
+}
 dependencies {
+
 }

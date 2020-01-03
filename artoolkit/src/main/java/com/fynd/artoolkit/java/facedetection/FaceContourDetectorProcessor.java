@@ -1,6 +1,12 @@
 package com.fynd.artoolkit.java.facedetection;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -20,11 +26,22 @@ import com.google.firebase.ml.vision.face.FirebaseVisionFaceContour;
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector;
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions;
 
+import org.jcodec.api.android.AndroidSequenceEncoder;
+import org.jcodec.common.io.FileChannelWrapper;
+import org.jcodec.common.io.NIOUtils;
+import org.jcodec.common.model.Rational;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 /**
@@ -54,17 +71,36 @@ public class FaceContourDetectorProcessor extends VisionProcessorBase<List<Fireb
 
     private final FirebaseVisionFaceDetector detector;
 
+    Context context;
+
     private String selectedColor = Constants.colorsHexList.get(0);
     private Integer selectedMakeupIndex = 0;
     private Float makeupOpacitiy = 0.2f;
+    public boolean click=false;
+    public boolean smallVideo=false;
+    public boolean smallVideoEnd=false;
+    public boolean smallVideostart=false;
+    FileChannelWrapper out = null;
+    AndroidSequenceEncoder encoder;
+    File sdCard;
+    File file;
+    SharedPreferences sharedpreferences ;
+    String MyPREFERENCES="DemoArApp";
+    SharedPreferences.Editor editor;
+    transient Bitmap bmp;
+    transient Bitmap bmp32;
+    ConcurrentLinkedQueue<Bitmap> bitmapQueue = new ConcurrentLinkedQueue<Bitmap>();
 
+    public File dir;
     // neeraj
     static {
         System.loadLibrary("opencv_java4");
         System.loadLibrary("native-lib");
     }
 
-    public FaceContourDetectorProcessor() {
+    public FaceContourDetectorProcessor(  Context context) {
+
+
 
         //FirebaseVision fVision=FirebaseVision.getInstance();
         FirebaseVisionFaceDetectorOptions options =
@@ -73,7 +109,12 @@ public class FaceContourDetectorProcessor extends VisionProcessorBase<List<Fireb
                         .setContourMode(FirebaseVisionFaceDetectorOptions.ALL_CONTOURS)
                         .build();
 
-        detector =FirebaseVision.getInstance().getVisionFaceDetector(options);;
+        detector =FirebaseVision.getInstance().getVisionFaceDetector(options);
+
+
+        this.context = context;
+        sharedpreferences= context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        editor = sharedpreferences.edit();
     }
 
     public void setSelectedColor(String selectedColor){
@@ -92,6 +133,7 @@ public class FaceContourDetectorProcessor extends VisionProcessorBase<List<Fireb
     public void stop() {
         try {
             detector.close();
+
         } catch (IOException e) {
             Log.e(TAG, "Exception thrown while trying to close Face Contour Detector: " + e);
         }
@@ -108,7 +150,7 @@ public class FaceContourDetectorProcessor extends VisionProcessorBase<List<Fireb
 
     @Override
     protected void onSuccess(
-            @Nullable Bitmap originalCameraImage,
+            @Nullable  Bitmap originalCameraImage,
             @NonNull List<FirebaseVisionFace> faces,
             @NonNull FrameMetadata frameMetadata,
             @NonNull GraphicOverlay graphicOverlay) {
@@ -116,7 +158,7 @@ public class FaceContourDetectorProcessor extends VisionProcessorBase<List<Fireb
         if (originalCameraImage != null) {
             // neeraj start
             Mat matInput = new Mat();
-            Bitmap bmp32 = originalCameraImage.copy(Bitmap.Config.ARGB_8888, true);
+            bmp32 = originalCameraImage.copy(Bitmap.Config.ARGB_8888, true);
             Utils.bitmapToMat(bmp32, matInput);
 
 
@@ -194,12 +236,150 @@ public class FaceContourDetectorProcessor extends VisionProcessorBase<List<Fireb
             }
 
             if(faces.size()!=0) {
-                Bitmap bmp = Bitmap.createBitmap(matInput.cols(), matInput.rows(), Bitmap.Config.ARGB_8888);
+                bmp = Bitmap.createBitmap(matInput.cols(), matInput.rows(), Bitmap.Config.ARGB_8888);
                 Utils.matToBitmap(matResult, bmp);
                 originalCameraImage = bmp;
             }
             // neeraj end
+            if(click) {
 
+                File sdCard = Environment.getExternalStorageDirectory();
+                dir = new File(sdCard.getAbsolutePath() + "/DCIM/ARBeauty");
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+
+                String timeStamp = new SimpleDateFormat("yyMMddHHmmss").format(new Date());
+                //String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+                String ImageFile = "ARBeauty-" + timeStamp + ".jpg"; //".png";
+
+                File file = new File(dir, ImageFile);
+                //File file = new File( ImageFile);
+                //String path= Environment.getExternalStorageState().toString()+"out.jpg";
+                try (FileOutputStream out = new FileOutputStream(file)) {
+
+                    long generatedLong = new Random().nextLong();
+                    originalCameraImage.compress(Bitmap.CompressFormat.PNG, 100, out);
+                    ContentValues values = new ContentValues();
+                    values.put(MediaStore.Images.Media.TITLE, file.getPath());
+                    values.put(MediaStore.Images.Media.ORIENTATION, sharedpreferences.getInt("Orientation",90));
+                    values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis()); // DATE HERE
+                    //values.put(MediaStore.Images.Media._ID, generatedLong);
+                    values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+                    values.put(MediaStore.MediaColumns.DATA, file.getPath());
+
+                    context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+
+                    editor.putString("lastImageUi", file.getPath());
+                    editor.commit();
+
+//                    ExifInterface old=new ExifInterface(file.getPath());
+//
+//                    old.setAttribute(MediaStore.Images.ImageColumns.MIME_TYPE,"image/jpeg");
+//                    old.setAttribute(MediaStore.Images.ImageColumns.DATE_TAKEN, Long.toString(System.currentTimeMillis()));
+//                    old.setAttribute(MediaStore.Images.ImageColumns.DATA, file.getPath());
+//                    old.saveAttributes();
+
+                    click=false;
+                    Log.d("criteasms","saved");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+            if(smallVideo){
+                Log.d("callme1as"," set first "+smallVideo);
+
+                if(smallVideostart){
+                    bitmapQueue = new ConcurrentLinkedQueue<Bitmap>();
+                    smallVideostart=false;
+                    bitmapQueue.add(originalCameraImage);
+                    new FrametoVideo().execute(1);
+                }
+                else if(smallVideoEnd) {
+                    smallVideoEnd=false;
+                    smallVideo=false;
+                    bitmapQueue.add(originalCameraImage);
+                    new FrametoVideo().execute(3);
+                }
+                else{
+                    bitmapQueue.add(originalCameraImage);
+                    new FrametoVideo().execute(2);
+                }
+
+
+//                if(smallVideostart){
+//                    smallVideostart=false;
+//                    out = null;
+//                    sdCard = Environment.getExternalStorageDirectory();
+//                    dir = new File(sdCard.getAbsolutePath() +  "/DCIM/ARBeauty");
+//                    if (!dir.exists()) {
+//                        dir.mkdirs();
+//                    }
+//                    String timeStamp = new SimpleDateFormat("yyMMddHHmmss").format(new Date());
+//                    String ImageFile = "ARBeauty-" + timeStamp + ".mp4"; //".png";
+//                    //File file = new File(dir, ImageFile);
+//
+//                    file = new File(dir, ImageFile);
+//
+//                    try {
+//                        out = NIOUtils.writableFileChannel(file.getAbsolutePath());
+//                    } catch (FileNotFoundException e) {
+//                        e.printStackTrace();
+//                    }
+//                    try {
+//                        encoder = new AndroidSequenceEncoder(out, Rational.R(4, 1));
+//                        encoder.encodeImage(originalCameraImage);
+//                        Log.d("callme"," set first ");
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//
+//
+//                }
+//
+//                if(smallVideoEnd) {
+//                    smallVideoEnd=false;
+//                    smallVideo=false;
+//                }
+//                else if(smallVideoEnd){
+//                    smallVideoEnd=false;
+//                    smallVideo=false;
+//                    try {
+//                        encoder.encodeImage(originalCameraImage);
+//                        encoder.finish();
+//                        ContentValues values = new ContentValues();
+//                        values.put(MediaStore.Video.VideoColumns.TITLE, file.getPath());
+//                        values.put(MediaStore.Video.VideoColumns.ORIENTATION, sharedpreferences.getInt("Orientation",90));
+//                        values.put(MediaStore.Video.VideoColumns.DATE_TAKEN, System.currentTimeMillis()); // DATE HERE
+//                        values.put(MediaStore.Video.VideoColumns.MIME_TYPE, "");
+//                        values.put(MediaStore.Video.VideoColumns.DATA, file.getPath());
+//                        //values.put(MediaStore.Video.Media.DATA, file.getPath());
+//                        editor.putString("lastImageUi", file.getPath());
+//                        editor.commit();
+//                        Log.d("videoPath"," set end "+file.getPath());
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    NIOUtils.closeQuietly(out);
+//
+//                }
+//                else{
+//                    try {
+//                        encoder.encodeImage(originalCameraImage);
+//                        Log.d("callme"," set mid ");
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                }
+
+
+
+            }
             CameraImageGraphic imageGraphic = new CameraImageGraphic(graphicOverlay, originalCameraImage);
             graphicOverlay.add(imageGraphic);
         }
@@ -213,6 +393,112 @@ public class FaceContourDetectorProcessor extends VisionProcessorBase<List<Fireb
         graphicOverlay.postInvalidate();
     }
 
+
+    private class FrametoVideo extends AsyncTask<Integer, Void, Void> {
+
+
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            if(integers[0]==1){
+                out = null;
+                sdCard = Environment.getExternalStorageDirectory();
+                dir = new File(sdCard.getAbsolutePath() +  "/DCIM/ARBeauty");
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+                String timeStamp = new SimpleDateFormat("yyMMddHHmmss").format(new Date());
+                String ImageFile = "ARBeauty-" + timeStamp + ".mp4"; //".png";
+                //File file = new File(dir, ImageFile);
+
+                file = new File(dir, ImageFile);
+
+                try {
+                    out = NIOUtils.writableFileChannel(file.getAbsolutePath());
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    encoder = new AndroidSequenceEncoder(out, Rational.R(8, 1));
+                    encoder.encodeImage(bitmapQueue.poll());
+                    Log.d("videoPath"," set first ");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+
+            }else if(integers[0]==2){
+                try {
+                    encoder.encodeImage(bitmapQueue.poll());
+                    Log.d("videoPath"," set mid ");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            else if(integers[0]==3){
+
+                try {
+                        encoder.encodeImage(bitmapQueue.poll());
+                        encoder.finish();
+                        ContentValues values = new ContentValues();
+                        values.put(MediaStore.Video.VideoColumns.TITLE, file.getPath());
+                        values.put(MediaStore.Video.VideoColumns.ORIENTATION, sharedpreferences.getInt("Orientation",90));
+                        values.put(MediaStore.Video.VideoColumns.DATE_TAKEN, System.currentTimeMillis()); // DATE HERE
+                        values.put(MediaStore.Video.VideoColumns.MIME_TYPE, "");
+                        values.put(MediaStore.Video.VideoColumns.DATA, file.getPath());
+                        //values.put(MediaStore.Video.Media.DATA, file.getPath());
+                        editor.putString("lastImageUi", file.getPath());
+                        editor.commit();
+                        Log.d("videoPath"," set end "+file.getPath());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    NIOUtils.closeQuietly(out);
+            }
+            return null;
+        }
+
+        protected void onPreExecute() {
+            // Runs on the UI thread before doInBackground
+            // Good for toggling visibility of a progress indicator
+
+        }
+
+
+
+
+
+    }
+
+    public static void saveBitmap(final Bitmap bitmap, final String filename) {
+        final String root =
+                Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "imagesegmenter";
+        //Log.i("save", bitmap.getWidth(), bitmap.getHeight(), root);
+        final File myDir = new File(root);
+
+        if (!myDir.mkdirs()) {
+            Log.i("save","Make dir failed");
+        }
+
+        final String fname = filename;
+        final File file = new File(myDir, fname);
+        if (file.exists()) {
+            file.delete();
+        }
+        try {
+            final FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 99, out);
+            out.flush();
+            out.close();
+        } catch (final Exception e) {
+            Log.e("save", "Exception!");
+        }
+    }
+    public static interface ClickCallback {
+        void onCameraClickCallback();
+    }
+
     @Override
     protected void onFailure(@NonNull Exception e) {
         Log.e(TAG, "Face detection failed " + e);
@@ -220,3 +506,4 @@ public class FaceContourDetectorProcessor extends VisionProcessorBase<List<Fireb
 
 
 }
+

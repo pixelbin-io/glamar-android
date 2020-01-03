@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 29
@@ -17,6 +19,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    configurations {
+        compile.exclude group: 'org.jetbrains', module: 'annotations'
+    }
     packagingOptions {
         pickFirst 'lib/x86/libc++_shared.so'
         pickFirst 'lib/armeabi-v7a/libc++_shared.so'
@@ -26,7 +31,26 @@ android {
         pickFirst 'lib/armeabi-v7a/libc++_shared.so'
     }
 }
+repositories {
+    maven {
+        url "http://artifactory.gofynd.com/artifactory/android-release-local"
+        credentials {
+            username = "aml_team"
+            password = "captureretail008"
+        }
+    }
 
+    jcenter()
+    google()
+    flatDir {
+        dirs 'libs'
+    }
+    maven {
+        url "https://maven.google.com"
+    }
+    maven { url "https://jitpack.io" }
+    maven { url 'https://maven.fabric.io/public' }
+}
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.1.0'
@@ -45,9 +69,30 @@ dependencies {
     implementation 'com.google.firebase:firebase-ml-vision-object-detection-model:19.0.1'
     // AutoML model
     implementation 'com.google.firebase:firebase-ml-vision-automl:18.0.1'
+    implementation 'com.android.volley:volley:1.1.1'
 
     implementation project(path: ':artoolkit')
-    implementation 'com.android.support:recyclerview-v7:28.0.0'
+
+
+//    implementation('com.fynd:ficto:1.1-snapshot@aar') {
+//        transitive = true
+//    }
+    implementation('com.fynd:opencv411:1.0-snapshot@aar') {
+        transitive = true
+    }
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    implementation 'androidx.cardview:cardview:1.0.0-rc02'
     implementation 'com.mikhaellopez:circularimageview:3.2.0'
     implementation 'com.github.warkiz.widget:indicatorseekbar:2.1.2'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+    implementation 'com.github.bumptech.glide:glide:3.7.0'
+    implementation 'jp.wasabeef:glide-transformations:2.0.1'
+    implementation "androidx.core:core-ktx:+"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }

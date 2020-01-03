@@ -86,6 +86,7 @@ public class CameraSourcePreview extends ViewGroup {
       cameraSource.start();
       if (overlay != null) {
         Size size = cameraSource.getPreviewSize();
+        int w=size.getWidth();
         int min = Math.min(size.getWidth(), size.getHeight());
         int max = Math.max(size.getWidth(), size.getHeight());
         if (isPortraitMode()) {
@@ -123,16 +124,21 @@ public class CameraSourcePreview extends ViewGroup {
 
   @Override
   protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-    int width = 320;
-    int height = 240;
+    //int width = 320;
+    //int height = 240;
+    int width = 640;
+    int height = 360;
+
     if (cameraSource != null) {
       Size size = cameraSource.getPreviewSize();
       if (size != null) {
         width = size.getWidth();
         height = size.getHeight();
+        Log.d("actualpreview"," previewsize "+width+" height "+height );
       }
     }
 
+    Log.d("actualpreview"," point "+left+" right "+right +" top "+top+" bottom "+bottom);
     // Swap width and height sizes when in portrait, since it will be rotated 90 degrees
     if (isPortraitMode()) {
       int tmp = width;
@@ -142,18 +148,24 @@ public class CameraSourcePreview extends ViewGroup {
 
     final int layoutWidth = right - left;
     final int layoutHeight = bottom - top;
-
+    Log.d("actualpreview"," layoutWidth "+layoutWidth+" layoutHeight "+layoutHeight );
     // Computes height and width for potentially doing fit width.
     int childWidth = layoutWidth;
     int childHeight = (int) (((float) layoutWidth / (float) width) * height);
+    Log.d("actualpreview"," 1 "+childWidth+" layoutHeight "+childHeight );
 
-    // If height is too tall using fit width, does fit height instead.
-    if (childHeight > layoutHeight) {
-      childHeight = layoutHeight;
-      childWidth = (int) (((float) layoutHeight / (float) height) * width);
-    }
+
+//    // If height is too tall using fit width, does fit height instead.
+//    if (childHeight > layoutHeight) {
+//      childHeight = layoutHeight;
+//      childWidth = (int) (((float) layoutHeight / (float) height) * width);
+//      Log.d("actualpreview"," 2 "+childWidth+" layoutHeight "+childHeight );
+//
+//    }
 
     for (int i = 0; i < getChildCount(); ++i) {
+      Log.d("actualpreview"," size "+childWidth+" height "+childHeight );
+      //getChildAt(i).layout(0, 0, childWidth, childHeight);
       getChildAt(i).layout(0, 0, childWidth, childHeight);
       Log.d(TAG, "Assigned view: " + i);
     }

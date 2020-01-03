@@ -8,6 +8,7 @@
 #include <vector>
 #include <algorithm>
 #include <android/log.h>
+
 #include "apply-makeup.h"
 
 #define  LOG_TAG    "someTag"
@@ -140,47 +141,189 @@ JNI_METHOD(AugmentFace)(JNIEnv *env, jobject instance,jlong matAddrInput, jlong 
         }
             case MakeupType::blush :{
 
-                /* Calculate ellipse parameters for both left and right cheek */
-                std::vector<cv::Point> face_points(face_len);
-                for(int index = 0 ; index < face_len ; index++){  face_points[index]  = cv::Point(jfaceX[index],jfaceY[index]); }
-                bool apply_left_blush = true,apply_right_blush = true;
-                int tmpDistance_1 , tmpDistance_2;
+            /* Calculate ellipse parameters for both left and right cheek */
+            std::vector<cv::Point> face_points(face_len);
+            for(int index = 0 ; index < face_len ; index++){  face_points[index]  = cv::Point(jfaceX[index],jfaceY[index]); }
+            if(!face_points.empty()) {
+                bool apply_left_blush = true, apply_right_blush = true;
+                int tmpDistance_1, tmpDistance_2;
 
-             // left cheek
-            int left_cheek_center_x =  (int) (jleftEyeX[15] + jupperLipTopX[0] + jnoseBottomX[0] + jfaceX[28] +  jfaceX[25] + jnoseBottomX[0] - jnoseBottomX[2]) / 5;
-            int left_cheek_center_y = (int) (jleftEyeY[15] + jupperLipTopY[0] + jnoseBottomY[0] + jfaceY[28] +  jfaceY[25]) / 5;
-            int semi_minor_axis = (int) cv::norm(cv::Point((int) jfaceX[25], (int) jfaceY[25]) - cv::Point(left_cheek_center_x, left_cheek_center_y)) / 2;
-            int semi_major_axis =  (int)( cv::norm(cv::Point(jupperLipTopX[0],jupperLipTopY[0]) - cv::Point((int) jfaceX[27], (int) jfaceY[27]))*0.40);
-            int left_rotation_angle = 50;
-            int left_start_angle = 0;
-            int left_end_angle = 360;
-            cv::Point left_center = cv::Point(left_cheek_center_x, left_cheek_center_y);
-            cv::Size left_blush_size(semi_minor_axis, semi_major_axis);
-            tmpDistance_1 = (int)( cv::norm( cv::Point((int) jleftEyeX[0], (int) jleftEyeY[0])  -  cv::Point((int) jleftEyeX[8], (int) jleftEyeY[8]) ) * 0.5 );
-            tmpDistance_2 = (int) cv::norm( cv::Point((int) jfaceX[29], (int) jfaceY[29])  -  cv::Point((int) jleftEyeX[0], (int) jleftEyeY[0]) );
-            if (tmpDistance_1 > tmpDistance_2) { apply_left_blush = false; };
+                // left cheek
+                int left_cheek_center_x =
+                        (int) (jleftEyeX[15] + jupperLipTopX[0] + jnoseBottomX[0] + jfaceX[28] +
+                               jfaceX[25] + jnoseBottomX[0] - jnoseBottomX[2]) / 5;
+                int left_cheek_center_y =
+                        (int) (jleftEyeY[15] + jupperLipTopY[0] + jnoseBottomY[0] + jfaceY[28] +
+                               jfaceY[25]) / 5;
+                int semi_minor_axis = (int) cv::norm(cv::Point((int) jfaceX[25], (int) jfaceY[25]) -
+                                                     cv::Point(left_cheek_center_x,
+                                                               left_cheek_center_y)) / 2;
+                int semi_major_axis = (int) (cv::norm(
+                        cv::Point(jupperLipTopX[0], jupperLipTopY[0]) -
+                        cv::Point((int) jfaceX[27], (int) jfaceY[27])) * 0.40);
+                int left_rotation_angle = 50;
+                int left_start_angle = 0;
+                int left_end_angle = 360;
+                cv::Point left_center = cv::Point(left_cheek_center_x, left_cheek_center_y);
+                cv::Size left_blush_size(semi_minor_axis, semi_major_axis);
+                tmpDistance_1 = (int) (cv::norm(cv::Point((int) jleftEyeX[0], (int) jleftEyeY[0]) -
+                                                cv::Point((int) jleftEyeX[8], (int) jleftEyeY[8])) *
+                                       0.5);
+                tmpDistance_2 = (int) cv::norm(cv::Point((int) jfaceX[29], (int) jfaceY[29]) -
+                                               cv::Point((int) jleftEyeX[0], (int) jleftEyeY[0]));
+                if (tmpDistance_1 > tmpDistance_2) { apply_left_blush = false; };
 
-            // right cheek
-            int right_cheek_center_x =  (int) (jrightEyeX[8] + jupperLipTopX[10] + jnoseBottomX[2] + jfaceX[8] + jfaceX[11] - (jnoseBottomX[0] - jnoseBottomX[2])) / 5;
-            int right_cheek_center_y =  (int) (jrightEyeY[8] + jupperLipTopY[10] + jnoseBottomY[2] + jfaceY[8] + jfaceY[11]) / 5;
-            int right_semi_minor_axis = (int) cv::norm(cv::Point((int) jfaceX[11], (int) jfaceY[11]) - cv::Point(right_cheek_center_x, right_cheek_center_y)) / 2;
-            int right_semi_major_axis =  (int)( cv::norm(cv::Point(jupperLipTopX[10],jupperLipTopY[10]) - cv::Point((int) jfaceX[7], (int) jfaceY[7]))*0.25);
-            int right_rotation_angle = 150;
-            int right_start_angle = 0;
-            int right_end_angle = 360;
-            cv::Point right_center = cv::Point(right_cheek_center_x, right_cheek_center_y);
-            cv::Size right_blush_size(right_semi_minor_axis, right_semi_major_axis);
-            tmpDistance_1 = (int) (cv::norm( cv::Point((int) jrightEyeX[0], (int) jrightEyeY[0])  -  cv::Point((int) jrightEyeX[8], (int) jrightEyeY[8]) ) * 0.5 );
-            tmpDistance_2 = (int) cv::norm( cv::Point((int) jfaceX[7], (int) jfaceY[7])  -  cv::Point((int) jrightEyeX[8], (int) jrightEyeY[8]) );
-            if (tmpDistance_1 > tmpDistance_2) { apply_right_blush = false; };
+                // right cheek
+                int right_cheek_center_x =
+                        (int) (jrightEyeX[8] + jupperLipTopX[10] + jnoseBottomX[2] + jfaceX[8] +
+                               jfaceX[11] - (jnoseBottomX[0] - jnoseBottomX[2])) / 5;
+                int right_cheek_center_y =
+                        (int) (jrightEyeY[8] + jupperLipTopY[10] + jnoseBottomY[2] + jfaceY[8] +
+                               jfaceY[11]) / 5;
+                int right_semi_minor_axis = (int) cv::norm(
+                        cv::Point((int) jfaceX[11], (int) jfaceY[11]) -
+                        cv::Point(right_cheek_center_x, right_cheek_center_y)) / 2;
+                int right_semi_major_axis = (int) (cv::norm(
+                        cv::Point(jupperLipTopX[10], jupperLipTopY[10]) -
+                        cv::Point((int) jfaceX[7], (int) jfaceY[7])) * 0.25);
+                int right_rotation_angle = 150;
+                int right_start_angle = 0;
+                int right_end_angle = 360;
+                cv::Point right_center = cv::Point(right_cheek_center_x, right_cheek_center_y);
+                cv::Size right_blush_size(right_semi_minor_axis, right_semi_major_axis);
+                tmpDistance_1 = (int) (cv::norm(
+                        cv::Point((int) jrightEyeX[0], (int) jrightEyeY[0]) -
+                        cv::Point((int) jrightEyeX[8], (int) jrightEyeY[8])) * 0.5);
+                tmpDistance_2 = (int) cv::norm(cv::Point((int) jfaceX[7], (int) jfaceY[7]) -
+                                               cv::Point((int) jrightEyeX[8], (int) jrightEyeY[8]));
+                if (tmpDistance_1 > tmpDistance_2) { apply_right_blush = false; };
 
 
-                apply_blush(matInput, selectedColor ,alpha,
-                        left_center , left_blush_size  ,  left_rotation_angle , left_start_angle, left_end_angle, apply_left_blush,
-                        right_center, right_blush_size , right_rotation_angle, right_start_angle, right_end_angle, apply_right_blush,
-                        face_points);
-            break;
+                apply_blush(matInput, selectedColor, alpha,
+                            left_center, left_blush_size, left_rotation_angle, left_start_angle,
+                            left_end_angle, apply_left_blush,
+                            right_center, right_blush_size, right_rotation_angle, right_start_angle,
+                            right_end_angle, apply_right_blush,
+                            face_points);
+                break;
+            }
         }
+//        case MakeupType  ::kajal:{
+//            int index = 0;
+//            int shift = 0;
+//            int corner_shift = 0;
+////            std::vector<cv::Point> leftupEye(8);
+////            std::vector<cv::Point> leftdownEye(8);
+//            std::vector<cv::Point> leftkajalEye(17);
+//            std::vector<cv::Point> rightkajalEye(17);
+//            //cv ::Point rook_points[1][17];
+//
+//            for (index = 0; index <= 16; index++) {
+//                if(index==0){
+//                    leftkajalEye[index] = cv::Point(jleftEyeX[index+8], jleftEyeY[index+8] );
+//                    rightkajalEye[index] = cv::Point(jleftEyeX[index+8], jleftEyeY[index+8] );
+//                }
+//                else if(index<=7 && index>0){
+//                    leftkajalEye[index] = cv::Point(jleftEyeX[index+8], jleftEyeY[index+8] );
+//                }
+//                else if(index==8){
+//                    leftkajalEye[index] = cv::Point(jleftEyeX[0], jleftEyeY[0] );
+//                }
+//                else if(index==9){
+//                    leftkajalEye[index] = cv::Point(jleftEyeX[0], jleftEyeY[0] + 3);
+//                }
+//                else if(index==10){
+//                    leftkajalEye[index] = cv::Point(jleftEyeX[15], jleftEyeY[15] +4);
+//                }
+//                else if(index==11){
+//                    leftkajalEye[index] = cv::Point(jleftEyeX[14], jleftEyeY[14] +4);
+//                }
+//                else if(index==12){
+//                    leftkajalEye[index] = cv::Point(jleftEyeX[13], jleftEyeY[13] +3);
+//                }
+//                else if(index==13){
+//                    leftkajalEye[index] = cv::Point(jleftEyeX[12], jleftEyeY[12] +2);
+//                }
+//                else if(index==14){
+//                    leftkajalEye[index] = cv::Point(jleftEyeX[11], jleftEyeY[11] +2);
+//                }
+//                else if(index==15){
+//                    leftkajalEye[index] = cv::Point(jleftEyeX[10], jleftEyeY[10] +1);
+//                }
+//                else if(index==16){
+//                    leftkajalEye[index] = cv::Point(jleftEyeX[9], jleftEyeY[9] +1);
+//                }
+//
+//
+//
+//            }
+//
+//
+//
+////            index = 0;
+////            for (index = 0; index <= 16; index++) {
+////                if(index==0){
+////                    rook_points[0][index] = cv::Point(jleftEyeX[index+8], jleftEyeY[index+8] );
+////                }
+////                else if(index<=7 && index>0){
+////                    rook_points[0][index] = cv::Point(jleftEyeX[index+8], jleftEyeY[index+8] );
+////                }
+////                else if(index==8){
+////                    rook_points[0][index] = cv::Point(jleftEyeX[0], jleftEyeY[0] );
+////                }
+////                else if(index==9){
+////                    rook_points[0][index] = cv::Point(jleftEyeX[0], jleftEyeY[0] + 3);
+////                }
+////                else if(index==10){
+////                    rook_points[0][index] = cv::Point(jleftEyeX[15], jleftEyeY[15] +4);
+////                }
+////                else if(index==11){
+////                    rook_points[0][index] = cv::Point(jleftEyeX[14], jleftEyeY[14] +4);
+////                }
+////                else if(index==12){
+////                    rook_points[0][index] = cv::Point(jleftEyeX[13], jleftEyeY[13] +3);
+////                }
+////                else if(index==13){
+////                    rook_points[0][index] = cv::Point(jleftEyeX[12], jleftEyeY[12] +2);
+////                }
+////                else if(index==14){
+////                    rook_points[0][index] = cv::Point(jleftEyeX[11], jleftEyeY[11] +2);
+////                }
+////                else if(index==15){
+////                    rook_points[0][index] = cv::Point(jleftEyeX[10], jleftEyeY[10] +1);
+////                }
+////                else if(index==16){
+////                    rook_points[0][index] = cv::Point(jleftEyeX[9], jleftEyeY[9] +1);
+////                }
+////
+////
+////
+////            }
+////            const cv::Point* ppt[1] = { rook_points[0] };
+////            int npt[] = { 17 };
+////            cv::fillPoly( matInput,
+////                          ppt,
+////                          npt,
+////                          1,
+////                          cv::Scalar( alpha, alpha, alpha ),
+////                          8 );
+//
+//
+//
+//
+//            apply_eyeLiner(matInput, selectedColor, alpha,leftkajalEye, rightkajalEye);
+//
+//            //cv::fillConvexPoly(matInput, leftkajalEye, int npts, const Scalar& color, int lineType=8, int shift=0)¶
+//            //cv ::polylines(matInput, leftkajalEye,true, cv:: Scalar (0,0,0), 1, 8, 0 );
+//            //int npt[] = { 20 };
+//            //cv ::fillPoly( matInput,rook_points,npt,true,1,cv ::Scalar( 0, 0, 0 ),8 );
+//
+//
+//
+//            break;
+//
+//        }
+
         case MakeupType::eyeliner: {
             /*
              * Get eye points for both eyes and  eyebrows.
@@ -258,10 +401,78 @@ JNI_METHOD(AugmentFace)(JNIEnv *env, jobject instance,jlong matAddrInput, jlong 
                            right_eyebrow_b, left_eyebrow_b);
             break;
         }
+//        case MakeupType::earing :{
+//            int index = 0;
+//            int shift = 2;
+//
+//            std::vector<cv::Point> leftEar(1);
+//            std::vector<cv::Point> rightEar(1);
+//
+//            int left_ear_nose_x_distance =  (int) (jnoseBridgeX[1]-jfaceX[9] );
+//            int right_ear_nose_x_distance =(int) (jfaceX[27]-jnoseBridgeX[1] );
+//            float ratio_distance=(float)left_ear_nose_x_distance/(float)right_ear_nose_x_distance;
+//            int right_ear_y =  (int) (jfaceY[26]+ jfaceY[27] )/2;
+//            int left_ear_Y =(int) (jfaceY[10]+ jfaceY[9])/2;
+//            int right_ear_X=0;
+//            int left_ear_X=0;
+//            leftEar[0] = cv::Point(jfaceX[10], left_ear_Y );
+//            rightEar[0] = cv::Point(jfaceX[26],right_ear_y);
+//            if(ratio_distance>0.7f && ratio_distance<1.3f){
+//                right_ear_y =  (int) (jfaceY[26]+ jfaceY[27] )/2;
+//                left_ear_Y =(int) (jfaceY[10]+ jfaceY[9])/2;
+//                leftEar[0] = cv::Point(jfaceX[10], left_ear_Y );
+//                rightEar[0] = cv::Point(jfaceX[26],right_ear_y);
+//                cv :: circle(matInput, leftEar[0],1, cv::Scalar(255,255,255),4, 8,0);
+//                cv :: circle(matInput, rightEar[0],1, cv::Scalar(255,255,255),4, 8,0);
+//            }
+//            else if(ratio_distance<0.7f ){
+//                right_ear_y =  (int) (jfaceY[26]+ jfaceY[27] )/2;
+//                right_ear_X =(int) (jfaceX[26]-( jfaceY[27]-jfaceY[26] )/2);
+//
+//                rightEar[0] = cv::Point(right_ear_X,right_ear_y);
+//                cv :: circle(matInput, rightEar[0],1, cv::Scalar(255,255,255),4, 8,0);
+//
+//            }
+//            else if(ratio_distance>1.3f){
+//                left_ear_Y =(int) (jfaceY[10]+ jfaceY[9])/2;
+//                left_ear_X =(int) (jfaceX[10]+( jfaceY[9]-jfaceY[10] )/2);
+//
+//                leftEar[0] = cv::Point(left_ear_X,left_ear_Y);
+//                cv :: circle(matInput, leftEar[0],1, cv::Scalar(255,255,255),4, 8,0);
+//
+//            }
+//
+//
+//        }
+
+
+//        case MakeupType  ::earing:{
+//
+//            int index = 0;
+//            int shift = 2;
+//            int corner_shift = 0;
+//            std::vector<cv::Point> leftEar(1);
+//            std::vector<cv::Point> rightEar(1);
+//
+//
+//            leftEar[0] = cv::Point(jfaceX[10], jfaceY[10] );
+//            rightEar[0] = cv::Point(jfaceX[26],jfaceY[26]);
+//            cv :: circle(matInput, leftEar[0],50, cv::Scalar(255,255,255),4, 8,0);
+////            int left_ear_x =  (int) (jfaceX[10] );
+////            int left_ear_Y =(int) (jfaceY[10] );
+////            int right_ear_x =  (int) (jfaceX[26] );
+////            int right_ear_Y =(int) (jfaceY[26] );
+//        }
         default : {
             break;
         }
+
+
     }
+
+
+
+
 
     // Gamma correction controls the overall brightness of the image
     if(applyGammaCorrection) {
