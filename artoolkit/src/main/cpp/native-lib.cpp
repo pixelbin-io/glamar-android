@@ -9,11 +9,15 @@
 #include <algorithm>
 #include <android/log.h>
 
+#include "opencv2/imgcodecs.hpp"
+#include "opencv2/highgui.hpp"
+#include <iostream>
+
 #include "apply-makeup.h"
 
 #define  LOG_TAG    "someTag"
 
-enum MakeupType{lipstick, blush, eyeliner, eyeshadow};
+enum MakeupType{lipstick, blush, eyeliner, eyeshadow,kajal};
 double gamma_coefficient = 0.5;
 bool applyGammaCorrection = false;
 
@@ -208,17 +212,20 @@ JNI_METHOD(AugmentFace)(JNIEnv *env, jobject instance,jlong matAddrInput, jlong 
                 break;
             }
         }
-//        case MakeupType  ::kajal:{
-//            int index = 0;
-//            int shift = 0;
-//            int corner_shift = 0;
-////            std::vector<cv::Point> leftupEye(8);
-////            std::vector<cv::Point> leftdownEye(8);
-//            std::vector<cv::Point> leftkajalEye(17);
-//            std::vector<cv::Point> rightkajalEye(17);
-//            //cv ::Point rook_points[1][17];
-//
-//            for (index = 0; index <= 16; index++) {
+        case MakeupType  ::kajal:{
+            int index = 0;
+            int shift = 0;
+            int corner_shift = 0;
+//            std::vector<cv::Point> leftupEye(8);
+//            std::vector<cv::Point> leftdownEye(8);
+            std::vector<cv::Point> leftkajalEye(17);
+            std::vector<cv::Point> rightkajalEye(17);
+            cv ::Point rook_points[2][20];
+
+            //cv::Mat res = matInput.clone();
+
+
+//            for (index = 0; index <= 16 ;index++) {
 //                if(index==0){
 //                    leftkajalEye[index] = cv::Point(jleftEyeX[index+8], jleftEyeY[index+8] );
 //                    rightkajalEye[index] = cv::Point(jleftEyeX[index+8], jleftEyeY[index+8] );
@@ -257,72 +264,236 @@ JNI_METHOD(AugmentFace)(JNIEnv *env, jobject instance,jlong matAddrInput, jlong 
 //
 //
 //            }
+
+
+
+            index = 0;
+            for (index = 0; index <= 20; index++) {
+                if(index==0){
+                    rook_points[0][index] = cv::Point(jleftEyeX[index+8], jleftEyeY[index+8]-1 );
+
+
+                }
+                else if(index<=7 && index>0){
+                    rook_points[0][index] = cv::Point(jleftEyeX[index+8], jleftEyeY[index+8]-1 );
+
+                }
+                else if(index==8){
+                    rook_points[0][index] = cv::Point(jleftEyeX[0], jleftEyeY[0] );
+
+                }
+                else if(index==9){
+                    rook_points[0][index] = cv::Point(2*jleftEyeX[0]-jleftEyeX[15], jleftEyeY[1] );
+                }
+//                else if(index==10){
+//                    rook_points[0][index] = cv::Point(2*jleftEyeX[0]-jleftEyeX[15], jleftEyeY[2] );
+//                }
+//                else if(index==11){
+//                    rook_points[0][index] = cv::Point(2*jleftEyeX[0]-jleftEyeX[15], jleftEyeY[2]+1 );
+//                }
+                else if(index==10){
+                    rook_points[0][index] = cv::Point(2*jleftEyeX[0]-jleftEyeX[15], jleftEyeY[1]+1 );
+                }
+
+                else if(index==11){
+                    rook_points[0][index] = cv::Point(jleftEyeX[0], jleftEyeY[0] + 3);
+
+                }
+                else if(index==12){
+                    rook_points[0][index] = cv::Point(jleftEyeX[15], jleftEyeY[15] +3);
+
+                }
+                else if(index==13){
+                    rook_points[0][index] = cv::Point(jleftEyeX[14], jleftEyeY[14] +3);
+
+                }
+                else if(index==14){
+                    rook_points[0][index] = cv::Point(jleftEyeX[13], jleftEyeY[13] +2);
+
+                }
+                else if(index==15){
+                    rook_points[0][index] = cv::Point(jleftEyeX[12], jleftEyeY[12] +1);
+
+                }
+                else if(index==16){
+                    rook_points[0][index] = cv::Point(jleftEyeX[11], jleftEyeY[11] +1);
+
+                }
+                else if(index==17){
+                    rook_points[0][index] = cv::Point(jleftEyeX[10], jleftEyeY[10] +1);
+
+                }
+                else if(index==18){
+                    rook_points[0][index] = cv::Point(jleftEyeX[9], jleftEyeY[9] +1);
+
+                }
+                else if(index==19){
+                    rook_points[0][index] = cv::Point(jleftEyeX[8], jleftEyeY[8] +1);
+
+                }
+
+
+
+
+            }
+
+            index = 0;
+            for (index = 0; index <= 20; index++) {
+
+                if(index<=7 && index>=0){
+
+                    rook_points[1][index] = cv::Point(jrightEyeX[index+8], jrightEyeY[index+8]-1 );
+                }
+                else if(index==8){
+
+                    rook_points[1][index] = cv::Point(jrightEyeX[0], jrightEyeY[0] );
+                }
+                else if(index==9){
+
+                    rook_points[1][index] = cv::Point(jrightEyeX[0], jrightEyeY[0]+3 );
+                }
+                else if(index==10){
+
+                    rook_points[1][index] = cv::Point(jrightEyeX[15], jrightEyeY[15]+1 );
+                }
+                else if(index==11){
+
+                    rook_points[1][index] = cv::Point(jrightEyeX[14], jrightEyeY[14]+1 );
+                }
+                else if(index==12){
+
+                    rook_points[1][index] = cv::Point(jrightEyeX[13], jrightEyeY[13]+1 );
+                }
+                else if(index==13){
+
+                    rook_points[1][index] = cv::Point(jrightEyeX[12], jrightEyeY[12] +1);
+                }
+                else if(index==14){
+
+                    rook_points[1][index] = cv::Point(jrightEyeX[11], jrightEyeY[11] +1);
+                }
+                else if(index==15){
+
+                    rook_points[1][index] = cv::Point(jrightEyeX[10], jrightEyeY[10] +2);
+                }
+                else if(index==16){
+
+                    rook_points[1][index] = cv::Point(jrightEyeX[9], jrightEyeY[9]+2 );
+                }
+
+                else if(index==17){
+
+                    rook_points[1][index] = cv::Point(jrightEyeX[8], jrightEyeY[8]+2 );
+                }
+                else if(index==18){
+                    rook_points[1][index] = cv::Point(2*jrightEyeX[8]-jrightEyeX[9], jrightEyeY[7] );
+
+                }
+                else if(index==19){
+                    rook_points[1][index] = cv::Point(2*jrightEyeX[8]-jrightEyeX[9], jrightEyeY[7]+2 );
+
+                }
+//                else if(index==20){
+//                    rook_points[1][index] = cv::Point(2*jleftEyeX[14]-jleftEyeX[0], jleftEyeY[3] );
+//
+//                }
+//                else if(index==21){
+//                    rook_points[1][index] = cv::Point(2*jleftEyeX[14]-jleftEyeX[0], jleftEyeY[3]+2 );
+//
+//                }
+
+
+
+
+            }
+            const cv::Point* ppt[1] = { rook_points[0] };
+            const cv::Point* ppt1[1] = { rook_points[1] };
+            int npt[] = { 20 };
+            //cv::Mat float_mask(matInput.size(),CV_32FC3,cv::Scalar(0,0,0));
+            //cv::Mat mask(matInput.rows, matInput.cols, CV_8UC1, cv::Scalar(0));
+            //cv::Mat mask = cv::Mat::zeros(matInput.rows, matInput.cols, CV_32FC3);
+            //mask = 0;
+//            cv::fillPoly( mask,
+//                          ppt,
+//                          npt,
+//                          1,
+//                          cv::Scalar( alpha, alpha, alpha ),
+//                          16 );
+
+
+
+            //cv::Mat mask  = cv :: Mat::zeros(matInput.size(), CV_8UC1);
+            //cv::Mat mask= matInput.clone();
+            //mask = 0;
+            cv::Mat mask(matInput.size(),CV_32FC3,cv::Scalar(0,0,0));
+//            if(leftkajalEye.size() > 2 ) {
+//                cv::drawContours(matInput, leftkajalEye, -1, cv::Scalar(255, 255, 255), -1);
+//            }
+
+            cv::fillPoly( mask,
+                          ppt,
+                          npt,
+                          1,
+                          cv::Scalar( 0.6, 0.6, 0.6 ),
+                          8 );
+            cv::fillPoly( mask,
+                          ppt1,
+                          npt,
+                          1,
+                          cv::Scalar( 0.6, 0.6, 0.6 ),
+                          8 );
+
+
+//            cv::Mat masked(matInput.size(),CV_8UC3,cv:: Scalar(255,255,255));
+//            matInput.copyTo(masked,mask);
+//            cv::Mat final = cv:: Mat::zeros(matInput.size(), CV_8UC3);
 //
 //
-//
-////            index = 0;
-////            for (index = 0; index <= 16; index++) {
-////                if(index==0){
-////                    rook_points[0][index] = cv::Point(jleftEyeX[index+8], jleftEyeY[index+8] );
-////                }
-////                else if(index<=7 && index>0){
-////                    rook_points[0][index] = cv::Point(jleftEyeX[index+8], jleftEyeY[index+8] );
-////                }
-////                else if(index==8){
-////                    rook_points[0][index] = cv::Point(jleftEyeX[0], jleftEyeY[0] );
-////                }
-////                else if(index==9){
-////                    rook_points[0][index] = cv::Point(jleftEyeX[0], jleftEyeY[0] + 3);
-////                }
-////                else if(index==10){
-////                    rook_points[0][index] = cv::Point(jleftEyeX[15], jleftEyeY[15] +4);
-////                }
-////                else if(index==11){
-////                    rook_points[0][index] = cv::Point(jleftEyeX[14], jleftEyeY[14] +4);
-////                }
-////                else if(index==12){
-////                    rook_points[0][index] = cv::Point(jleftEyeX[13], jleftEyeY[13] +3);
-////                }
-////                else if(index==13){
-////                    rook_points[0][index] = cv::Point(jleftEyeX[12], jleftEyeY[12] +2);
-////                }
-////                else if(index==14){
-////                    rook_points[0][index] = cv::Point(jleftEyeX[11], jleftEyeY[11] +2);
-////                }
-////                else if(index==15){
-////                    rook_points[0][index] = cv::Point(jleftEyeX[10], jleftEyeY[10] +1);
-////                }
-////                else if(index==16){
-////                    rook_points[0][index] = cv::Point(jleftEyeX[9], jleftEyeY[9] +1);
-////                }
-////
-////
-////
-////            }
-////            const cv::Point* ppt[1] = { rook_points[0] };
-////            int npt[] = { 17 };
-////            cv::fillPoly( matInput,
-////                          ppt,
-////                          npt,
-////                          1,
-////                          cv::Scalar( alpha, alpha, alpha ),
-////                          8 );
-//
-//
-//
-//
-//            apply_eyeLiner(matInput, selectedColor, alpha,leftkajalEye, rightkajalEye);
-//
-//            //cv::fillConvexPoly(matInput, leftkajalEye, int npts, const Scalar& color, int lineType=8, int shift=0)¶
-//            //cv ::polylines(matInput, leftkajalEye,true, cv:: Scalar (0,0,0), 1, 8, 0 );
-//            //int npt[] = { 20 };
-//            //cv ::fillPoly( matInput,rook_points,npt,true,1,cv ::Scalar( 0, 0, 0 ),8 );
-//
-//
-//
-//            break;
-//
-//        }
+//            cv :: fillPoly(mask, leftkajalEye, cv :: Scalar(255, 255, 255), 8, 0);
+//            cv :: bitwise_and(matInput, matInput, final, mask);
+
+            //cv::Mat color_pallete(mask.size(),CV_32FC3,cv::Scalar( 0, 0, 0 ));
+            cv::Mat color_pallete(mask.size(),CV_32FC3,selectedColor);
+
+            matInput.convertTo(matInput, CV_32FC3);
+            cv::GaussianBlur(mask,mask,cv::Size(3,3),0);
+
+
+            cv::multiply(color_pallete,mask,color_pallete);
+            cv::subtract(1,mask,mask);
+            //cv ::addWeighted(mask, 1, matInput,0.3,0, matInput);
+            cv::multiply(matInput,mask,mask);
+
+            cv::add(mask,color_pallete,matInput);
+            matInput.convertTo(matInput,CV_8UC3);
+
+            //cv::GaussianBlur(mask,mask,cv::Size(7,7),0,0,3);
+            //color_pallete.convertTo(mask, CV_32FC3);
+            //cv::multiply(color_pallete,mask,color_pallete,-1);
+            //cv::subtract(1,mask,mask);
+            //cv::multiply(matInput,mask,mask);
+            //cv::add(mask,color_pallete,matInput);
+            //matInput.convertTo(matInput,CV_8UC3);
+
+            //LOGD("SEARCH FOR THIS TAG", "%s", mask.size);
+            //mask.convertTo(matInput, CV_32FC3);
+            //cv ::addWeighted(mask, 0.9, matInput,0.3,0, matInput);
+
+
+
+
+            //apply_eyeLiner(matInput, selectedColor, alpha,leftkajalEye, rightkajalEye);
+
+            //cv::fillConvexPoly(matInput, leftkajalEye, int npts, const Scalar& color, int lineType=8, int shift=0)¶
+            //cv ::polylines(matInput, leftkajalEye,true, cv:: Scalar (0,0,0), 1, 8, 0 );
+            //int npt[] = { 20 };
+            //cv ::fillPoly( matInput,rook_points,npt,true,1,cv ::Scalar( 0, 0, 0 ),8 );
+
+
+
+            break;
+
+        }
 
         case MakeupType::eyeliner: {
             /*
