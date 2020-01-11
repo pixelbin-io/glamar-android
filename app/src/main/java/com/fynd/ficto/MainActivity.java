@@ -11,7 +11,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
 import android.hardware.Camera;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -40,6 +43,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,7 +55,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
@@ -72,6 +75,7 @@ import com.fynd.ficto.adapter.colorAdapter;
 import com.fynd.ficto.customRecycleView.DiscreteScrollView;
 import com.fynd.ficto.customRecycleView.DiscreteScrollViewOptions;
 import com.fynd.ficto.helper.CameraVideoButton;
+import com.fynd.ficto.helper.CustomVerticalSeekbar;
 import com.fynd.ficto.helper.Data;
 import com.fynd.ficto.helper.DataHolder;
 import com.fynd.ficto.transform.ScaleTransformer;
@@ -79,9 +83,6 @@ import com.fynd.ficto.util.App;
 import com.fynd.ficto.util.StorageUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector;
-import com.warkiz.widget.IndicatorSeekBar;
-import com.warkiz.widget.OnSeekChangeListener;
-import com.warkiz.widget.SeekParams;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -127,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     Button colorSelector;
     private FirebaseVisionFaceDetector detector;
     public FaceContourDetectorProcessor faceContourDetectorProcessor ;
-    IndicatorSeekBar seekBar;
+    CustomVerticalSeekbar seekBar;
 
     public int currentItem=0;
     public int currentBeautyMode=0;
@@ -179,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     TextView walkthroughtSkip,walkthroughtHeading,walkthroughtText,walkthroughtNext;
     FrameLayout filterFirstWalkthrough,dotImageWalktrough;
     LinearLayout walkthroughtBlankLL;
+    LinearLayout walkthroughllContainer1;
 
     SharedPreferences sharedpreferences ;
     String MyPREFERENCES="DemoArApp";
@@ -201,6 +203,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         walkthroughtSecondImageContainer=findViewById(R.id.walkthroughtSecondImageContainer);
         walkthrougContainer=findViewById(R.id.walkthroughtContainer);
         walkthroughtBlankLL=findViewById(R.id.walkthroughtBlankLL);
+        walkthroughllContainer1=findViewById(R.id.walkthroughllContainer1);
         filterFirstWalkthrough=findViewById(R.id.filterFirstWalkthrough);
         dotImageWalktrough=findViewById(R.id.dotImageWalktrough);
         mEmailHomeContainer=findViewById(R.id.base_content_footer);
@@ -248,6 +251,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         mHomeIcon.setChecked(true);
         mHomeIcon.setEnabled(false);
+
+
+
 
         mContentContainer.setOnTouchListener(new View.OnTouchListener() {
 
@@ -300,7 +306,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
 
                 }
-                editor.putBoolean("WalkThrough", false);
+                editor.putBoolean("WalkThrough", true);
                 editor.commit();
             }
         });
@@ -310,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 walkthrougContainer.setClickable(false);
                 walkthrougContainer.setVisibility(View.GONE);
 
-                editor.putBoolean("WalkThrough", false);
+                editor.putBoolean("WalkThrough", true);
                 editor.commit();
 
             }
@@ -764,12 +770,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         rvShade = findViewById(R.id.rvShade);
         mShadeColor=findViewById(R.id.shade_icon);
         facingSwitch = findViewById(R.id.facingSwitch);
-        shadeAdapter = new shade_adapter(this,faceContourDetectorProcessor);
-        rvShade.setHasFixedSize(true);
-        rvShade.setAdapter(shadeAdapter);
-        //layoutManager = new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL);
-        layoutManager =new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        rvShade.setLayoutManager(layoutManager);
+        //shadeAdapter = new shade_adapter(this,faceContourDetectorProcessor);
+//        rvShade.setHasFixedSize(true);
+//        rvShade.setAdapter(shadeAdapter);
+//        //layoutManager = new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL);
+//        layoutManager =new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+//        rvShade.setLayoutManager(layoutManager);
 
 
 //        ViewPager viewPager = findViewById(R.id.tab_viewpager);
@@ -817,128 +823,145 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             getRuntimePermissions();
         }
 
-        facingSwitch.setOnClickListener(new View.OnClickListener() {
+//        facingSwitch.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                Log.d(TAG, "Set facing");
+//                if (cameraSource != null) {
+//                    if (mode_frount) {
+//                        mode_frount=false;
+//                        cameraSource.setFacing(CameraSource.CAMERA_FACING_BACK);
+//                    } else {
+//                        mode_frount=true;
+//                        cameraSource.setFacing(CameraSource.CAMERA_FACING_FRONT);
+//
+//                    }
+//                }
+//                preview.stop();
+//                startCameraSource();
+//            }
+//        });
+//        mShadeColor.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                mShadeContainer.setVisibility(View.VISIBLE);
+//                mMode.setChecked(false);
+//                mModeContainer.setVisibility(View.GONE);
+//
+//            }
+//        });
+//        mMode.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if(mMode.isChecked()){
+//                    mModeContainer.setVisibility(View.VISIBLE);
+//                    mShadeContainer.setVisibility(View.GONE);
+//                }else{
+//                    mShadeContainer.setVisibility(View.VISIBLE);
+//                    mModeContainer.setVisibility(View.GONE);
+//
+//                }
+//            }
+//        });
+//        mLipstick.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if(mLipstick.isChecked()){
+//                    mBlush.setChecked(false);
+//                    mEyeshadow.setChecked(false);
+//                    mEyeliner.setChecked(false);
+//                    Log.d(TAG, "*************** Selected Makeup Index: " + 0);
+//                    faceContourDetectorProcessor.setSelectedMakeupIndex(0);
+//                }
+//                else{
+//                    mLipstick.setChecked(true);
+//                }
+//
+//            }
+//        });
+//        mBlush.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if(mBlush.isChecked()){
+//                    mLipstick.setChecked(false);
+//                    mEyeshadow.setChecked(false);
+//                    mEyeliner.setChecked(false);
+//                    Log.d(TAG, "*************** Selected Makeup Index: " + 1);
+//                    faceContourDetectorProcessor.setSelectedMakeupIndex(1);
+//
+//                }
+//                else{
+//                    mBlush.setChecked(true);
+//                }
+//            }
+//        });
+//        mEyeshadow.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if(mEyeshadow.isChecked()){
+//                    mLipstick.setChecked(false);
+//                    mBlush.setChecked(false);
+//                    mEyeliner.setChecked(false);
+//                    Log.d(TAG, "*************** Selected Makeup Index: " + 3);
+//                    faceContourDetectorProcessor.setSelectedMakeupIndex(3);
+//
+//                }
+//                else{
+//                    mEyeshadow.setChecked(true);
+//                }
+//            }
+//        });
+//        mEyeliner.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if(mEyeliner.isChecked()){
+//                    mLipstick.setChecked(false);
+//                    mEyeshadow.setChecked(false);
+//                    mBlush.setChecked(false);
+//                    Log.d(TAG, "*************** Selected Makeup Index: " + 2);
+//                    faceContourDetectorProcessor.setSelectedMakeupIndex(2);
+//
+//                }
+//                else{
+//                    mEyeliner.setChecked(true);
+//                }
+//            }
+//        });
+
+
+//        LinearGradient test = new LinearGradient(0.f, 0.f, 300.f, 0.0f,
+//
+//        new int[] { 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF,
+//                0xFFFF0000, 0xFFFF00FF, 0xFFFFFF00, 0xFFFFFFFF},
+//                null, Shader.TileMode.CLAMP);
+//        ShapeDrawable shape = new ShapeDrawable(new RectShape());
+//        shape.getPaint().setShader(test);
+//
+//
+//        seekBar.setProgressDrawable( (Drawable)shape );
+
+        //seekBar.getThumb().setColorFilter(getResources().getColor(R.color.beauty_orange), PorterDuff.Mode.SRC_IN);
+
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onClick(View v) {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                Log.d("seekbarVal"," "+progress);
+                faceContourDetectorProcessor.setMakeupOpacitiy(progress/100.0f);
+            }
 
-                Log.d(TAG, "Set facing");
-                if (cameraSource != null) {
-                    if (mode_frount) {
-                        mode_frount=false;
-                        cameraSource.setFacing(CameraSource.CAMERA_FACING_BACK);
-                    } else {
-                        mode_frount=true;
-                        cameraSource.setFacing(CameraSource.CAMERA_FACING_FRONT);
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
 
-                    }
-                }
-                preview.stop();
-                startCameraSource();
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
         });
-        mShadeColor.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mShadeContainer.setVisibility(View.VISIBLE);
-                mMode.setChecked(false);
-                mModeContainer.setVisibility(View.GONE);
 
-            }
-        });
-        mMode.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(mMode.isChecked()){
-                    mModeContainer.setVisibility(View.VISIBLE);
-                    mShadeContainer.setVisibility(View.GONE);
-                }else{
-                    mShadeContainer.setVisibility(View.VISIBLE);
-                    mModeContainer.setVisibility(View.GONE);
-
-                }
-            }
-        });
-        mLipstick.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(mLipstick.isChecked()){
-                    mBlush.setChecked(false);
-                    mEyeshadow.setChecked(false);
-                    mEyeliner.setChecked(false);
-                    Log.d(TAG, "*************** Selected Makeup Index: " + 0);
-                    faceContourDetectorProcessor.setSelectedMakeupIndex(0);
-                }
-                else{
-                    mLipstick.setChecked(true);
-                }
-
-            }
-        });
-        mBlush.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(mBlush.isChecked()){
-                    mLipstick.setChecked(false);
-                    mEyeshadow.setChecked(false);
-                    mEyeliner.setChecked(false);
-                    Log.d(TAG, "*************** Selected Makeup Index: " + 1);
-                    faceContourDetectorProcessor.setSelectedMakeupIndex(1);
-
-                }
-                else{
-                    mBlush.setChecked(true);
-                }
-            }
-        });
-        mEyeshadow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(mEyeshadow.isChecked()){
-                    mLipstick.setChecked(false);
-                    mBlush.setChecked(false);
-                    mEyeliner.setChecked(false);
-                    Log.d(TAG, "*************** Selected Makeup Index: " + 3);
-                    faceContourDetectorProcessor.setSelectedMakeupIndex(3);
-
-                }
-                else{
-                    mEyeshadow.setChecked(true);
-                }
-            }
-        });
-        mEyeliner.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(mEyeliner.isChecked()){
-                    mLipstick.setChecked(false);
-                    mEyeshadow.setChecked(false);
-                    mBlush.setChecked(false);
-                    Log.d(TAG, "*************** Selected Makeup Index: " + 2);
-                    faceContourDetectorProcessor.setSelectedMakeupIndex(2);
-
-                }
-                else{
-                    mEyeliner.setChecked(true);
-                }
-            }
-        });
-
-
-        seekBar.setOnSeekChangeListener(new OnSeekChangeListener() {
-            @Override
-            public void onSeeking(SeekParams seekParams) {
-
-                faceContourDetectorProcessor.setMakeupOpacitiy(seekParams.progress/100.0f);
-            }
-
-            @Override
-            public void onStartTrackingTouch(IndicatorSeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(IndicatorSeekBar seekBar) {
-            }
-        });
 
         updateGalleryIcon();
 
@@ -1296,11 +1319,11 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
 
     public void setUICameraClickChange(){
-
-        if(sharedpreferences.getBoolean("WalkThrough", true)){
-            walkthrougContainer.setVisibility(View.VISIBLE);
-        }else{
+        boolean value=sharedpreferences.getBoolean("WalkThrough", false);
+        if(value){
             walkthrougContainer.setVisibility(View.GONE);
+        }else{
+            walkthrougContainer.setVisibility(View.VISIBLE);
         }
 
         mHomeIcon.setChecked(false);
@@ -1437,6 +1460,61 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
+    public void setUiBottomLayout(){
+        if(preview!=null & preview.getScreenExtraSize()!=-999 & preview.getScreenExtraSize()!=0){
+
+            float dp = preview.getScreenExtraSize() / getResources().getDisplayMetrics().density;
+            int paramMargin=(int)dp+55;
+            int paramMargin1=paramMargin+115;
+            int paramMargin2=paramMargin1+215;
+            int paramMargin3=paramMargin1+50;
+            int paramMargin4=paramMargin1+75;
+            int paramMargin5=paramMargin1+50;
+            int paramMargin6=paramMargin1+50;
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) mCameraFooterContainer.getLayoutParams();
+            params.setMargins(0, 0, 0, paramMargin);
+            mCameraFooterContainer.setLayoutParams(params);
+            ViewGroup.MarginLayoutParams params1 = (ViewGroup.MarginLayoutParams) mCircularRecyclerFilterContainer.getLayoutParams();
+            params1.setMargins(0, 0, 0, paramMargin1);
+            mCircularRecyclerFilterContainer.setLayoutParams(params1);
+            ViewGroup.MarginLayoutParams params2 = (ViewGroup.MarginLayoutParams) mCircularRecyclerShadeContainer.getLayoutParams();
+            params2.setMargins(0, 0, 0, paramMargin2);
+            mCircularRecyclerShadeContainer.setLayoutParams(params2);
+
+            ViewGroup.MarginLayoutParams params3 = (ViewGroup.MarginLayoutParams) mVideoClickContainer.getLayoutParams();
+            params3.setMargins(0, 0, 0, paramMargin3);
+            mVideoClickContainer.setLayoutParams( params3);
+
+            ViewGroup.MarginLayoutParams params4 = (ViewGroup.MarginLayoutParams) filterFirstWalkthrough.getLayoutParams();
+            params4.setMargins(0, 0, 0, paramMargin4);  // left, top, right, bottom
+            filterFirstWalkthrough.setLayoutParams(params4);
+
+            ViewGroup.MarginLayoutParams params5 = (ViewGroup.MarginLayoutParams) dotImageWalktrough.getLayoutParams();
+            params5.setMargins(0, 0, 0, paramMargin5);  // left, top, right, bottom
+            dotImageWalktrough.setLayoutParams(params5);
+
+
+            ViewGroup.MarginLayoutParams params6 = (ViewGroup.MarginLayoutParams) walkthroughllContainer1.getLayoutParams();
+
+            params6.setMargins(0, 0, 0, paramMargin6);
+            walkthroughllContainer1.setLayoutParams(params6);
+
+
+            Log.d("actualpreview"," extrasize "+dp );
+
+        }
+        else{
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    //Do something after 100ms
+                    setUiBottomLayout();
+
+                }
+            }, 1000);
+        }
+    }
     /**
      * Starts or restarts the camera source, if it exists. If the camera source doesn't exist yet
      * (e.g., because onResume was called before the camera source was created), this will be called
@@ -1452,6 +1530,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     Log.d(TAG, "resume: graphOverlay is null");
                 }
                 preview.start(cameraSource, graphicOverlay);
+                setUiBottomLayout();
             } catch (IOException e) {
                 Log.e(TAG, "Unable to start camera source.", e);
                 cameraSource.release();

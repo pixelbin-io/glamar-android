@@ -474,7 +474,8 @@ public class CameraSource {
     List<Camera.Size> supportedPictureSizes =parameters.getSupportedPictureSizes();
     List<SizePair> validPreviewSizes = new ArrayList<>();
     for (Camera.Size pictureSize : supportedPreviewSizes) {
-      Log.d("previewSizeFor"," height "+pictureSize.height+" width "+pictureSize.width );
+      float pictureAspectRatio = (float) pictureSize.width/ (float) pictureSize.height ;
+      Log.d("previewSizeFor"," height "+pictureSize.height+" width "+pictureSize.width+" ratio "+pictureAspectRatio);
 
     }
     for (Camera.Size pictureSize : supportedPictureSizes) {
@@ -746,7 +747,7 @@ public class CameraSource {
 
         try {
           synchronized (processorLock) {
-            Log.d(TAG, "Process an image");
+            //Log.d(TAG, "Process an image");
             frameProcessor.process(
                 data,
                 new FrameMetadata.Builder()

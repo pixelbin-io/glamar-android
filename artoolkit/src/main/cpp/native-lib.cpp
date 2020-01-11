@@ -434,14 +434,14 @@ JNI_METHOD(AugmentFace)(JNIEnv *env, jobject instance,jlong matAddrInput, jlong 
                           ppt,
                           npt,
                           1,
-                          cv::Scalar( 0.6, 0.6, 0.6 ),
-                          8 );
+                          cv::Scalar( alpha, alpha, alpha ),
+                          16 );
             cv::fillPoly( mask,
                           ppt1,
                           npt,
                           1,
-                          cv::Scalar( 0.6, 0.6, 0.6 ),
-                          8 );
+                          cv::Scalar( alpha, alpha, alpha ),
+                          16 );
 
 
 //            cv::Mat masked(matInput.size(),CV_8UC3,cv:: Scalar(255,255,255));

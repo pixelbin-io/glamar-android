@@ -27,6 +27,17 @@ void smooth_and_color(cv::Mat& image,cv::Mat& float_mask,cv::Mat& color_pallete,
     image.convertTo(image,CV_8UC3);
 
 }
+void smooth_and_color_sparke(cv::Mat& image,cv::Mat& float_mask,cv::Mat& color_pallete,int kernel_size){
+
+    image.convertTo(image, CV_32FC3);
+    cv::GaussianBlur(float_mask,float_mask,cv::Size(kernel_size,kernel_size),0);
+    cv::multiply(color_pallete,float_mask,color_pallete);
+    cv::subtract(1,float_mask,float_mask);
+    cv::multiply(image,float_mask,float_mask);
+    cv::add(float_mask,color_pallete,image);
+    image.convertTo(image,CV_8UC3);
+
+}
 
 void apply_lipstick(cv::Mat &image,const cv::Scalar& color_lips, float alpha,
         const std::vector<cv::Point>& ult_c,const std::vector<cv::Point>& ulb_c,

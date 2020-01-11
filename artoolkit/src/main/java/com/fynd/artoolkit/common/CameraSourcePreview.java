@@ -37,6 +37,8 @@ public class CameraSourcePreview extends ViewGroup {
   private CameraSource cameraSource;
 
   private GraphicOverlay overlay;
+  private int extraSize=-999;
+  private int screenSize=0;
 
   public CameraSourcePreview(Context context, AttributeSet attrs) {
     super(context, attrs);
@@ -124,10 +126,10 @@ public class CameraSourcePreview extends ViewGroup {
 
   @Override
   protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-    //int width = 320;
-    //int height = 240;
-    int width = 640;
-    int height = 360;
+    int width = 256;
+    int height = 144;
+    //int width = 720;
+    //int height = 360;
 
     if (cameraSource != null) {
       Size size = cameraSource.getPreviewSize();
@@ -139,6 +141,7 @@ public class CameraSourcePreview extends ViewGroup {
     }
 
     Log.d("actualpreview"," point "+left+" right "+right +" top "+top+" bottom "+bottom);
+    screenSize=bottom;
     // Swap width and height sizes when in portrait, since it will be rotated 90 degrees
     if (isPortraitMode()) {
       int tmp = width;
@@ -163,12 +166,19 @@ public class CameraSourcePreview extends ViewGroup {
 //
 //    }
 
+    if(screenSize>childHeight){
+      extraSize=screenSize-childHeight;
+    }
+    else{
+      extraSize=0;
+    }
     for (int i = 0; i < getChildCount(); ++i) {
-      Log.d("actualpreview"," size "+childWidth+" height "+childHeight );
+      Log.d("actualpreview"," size seted "+childWidth+" height "+childHeight +" extraSize "+extraSize);
       //getChildAt(i).layout(0, 0, childWidth, childHeight);
       getChildAt(i).layout(0, 0, childWidth, childHeight);
       Log.d(TAG, "Assigned view: " + i);
     }
+
 
     try {
       startIfReady();
@@ -177,6 +187,10 @@ public class CameraSourcePreview extends ViewGroup {
     }
   }
 
+  public int getScreenExtraSize(){
+    return extraSize;
+
+  }
   private boolean isPortraitMode() {
     int orientation = context.getResources().getConfiguration().orientation;
     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {

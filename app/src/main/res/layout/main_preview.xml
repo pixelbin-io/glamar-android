@@ -7,6 +7,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:animateLayoutChanges="true"
     android:fitsSystemWindows="true"
+    android:background="@color/white"
     tools:context=".MainActivity">
 
     <RelativeLayout
@@ -155,187 +156,219 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="match_parent"
         android:id="@+id/seekbar"
-        android:visibility="gone"
+
+        android:visibility="visible"
+
+        android:orientation="horizontal"
+
+        android:layout_gravity="center"
+        android:gravity="right"
+
+
         android:layout_above="@+id/shade_mode"
         >
-        <com.warkiz.widget.IndicatorSeekBar
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:isb_max="100"
-            app:isb_min="-1.0"
-            app:isb_progress="1"
-            app:isb_seek_smoothly="true"
-            app:isb_show_tick_marks_type="oval"
-            app:isb_tick_marks_size="13dp"
-            android:id="@+id/seekBar2"
-            app:isb_show_tick_texts="true"
-            app:isb_tick_texts_size="15sp"
-            app:isb_tick_texts_color="@color/beauty_orange"
-            app:isb_thumb_color="@color/beauty_orange"
-            app:isb_thumb_size="20dp"
-            app:isb_show_indicator="rounded_rectangle"
-            app:isb_indicator_color="@color/beauty_orange"
-            app:isb_indicator_text_color="@color/colorAccent"
-            app:isb_indicator_text_size="18sp"
-            app:isb_track_background_color="@color/beauty_orange"
-            app:isb_track_background_size="2dp"
-            app:isb_track_progress_color="@color/beauty_orange"
-            app:isb_track_progress_size="4dp"
-            app:isb_only_thumb_draggable="false"/>
+
+        <com.fynd.ficto.helper.CustomVerticalSeekbar
+            android:layout_width="30dp"
+            android:layout_height="300dp"
+            android:layout_marginLeft="300dp"
+            android:layout_marginBottom="50dp"
+            android:layout_marginRight="30dp"
+            android:max="50"
+            style="@style/MySeekBar"
+            android:min="10"
+
+            android:progressDrawable="@drawable/progress"
+            android:minHeight="4dp"
+
+            android:maxHeight="6dp"
+            android:thumb="@drawable/seekbar_drawable_thumb"
+            android:layout_gravity="center_vertical"
+
+            android:id="@+id/seekBar2"></com.fynd.ficto.helper.CustomVerticalSeekbar>
+
+<!--        <com.warkiz.widget.IndicatorSeekBar-->
+<!--            android:layout_width="100dp"-->
+<!--            android:layout_height="100dp"-->
+<!--            app:isb_max="100"-->
+<!--            app:isb_min="-1.0"-->
+<!--            android:layout_marginLeft="300dp"-->
+<!--            android:layout_margin="10dp"-->
+<!--            android:padding="25dp"-->
+<!--            app:isb_progress="1"-->
+<!--            app:isb_seek_smoothly="true"-->
+<!--            app:isb_show_tick_marks_type="oval"-->
+<!--            app:isb_tick_marks_size="0dp"-->
+<!--            android:id="@+id/seekBar2"-->
+<!--            app:isb_show_tick_texts="false"-->
+<!--            app:isb_tick_texts_size="0sp"-->
+<!--            app:isb_tick_texts_color="@color/beauty_orange"-->
+<!--            app:isb_thumb_color="@color/beauty_orange"-->
+<!--            app:isb_thumb_size="25dp"-->
+<!--            app:isb_show_indicator="rounded_rectangle"-->
+<!--            app:isb_indicator_color="@color/Transparent"-->
+<!--            app:isb_indicator_text_color="@color/Transparent"-->
+<!--            app:isb_indicator_text_size="0sp"-->
+<!--            app:isb_track_background_color="@color/beauty_orange"-->
+<!--            app:isb_track_background_size="2dp"-->
+<!--            app:isb_track_progress_color="@color/beauty_orange"-->
+<!--            app:isb_track_progress_size="4dp"-->
+
+<!--            app:isb_only_thumb_draggable="false"/>-->
     </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:background="@color/black_de"
-        android:orientation="horizontal"
-        android:layout_above="@id/listMode"
-        android:id="@+id/Mode"
-        android:visibility="gone"
-        android:weightSum= "4"
-        android:baselineAligned="false">
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="55dp"-->
+<!--        android:background="@color/black_de"-->
+<!--        android:orientation="horizontal"-->
+<!--        android:layout_above="@id/listMode"-->
+<!--        android:id="@+id/Mode"-->
+<!--        android:visibility="gone"-->
+<!--        android:weightSum= "4"-->
+<!--        android:baselineAligned="false">-->
 
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="55dp"
-            android:layout_weight="1">
+<!--        <FrameLayout-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="55dp"-->
+<!--            android:layout_weight="1">-->
 
-            <ToggleButton
-                android:id="@+id/Eyeliner"
-                android:layout_width="37dp"
-                android:layout_height="37dp"
+<!--            <ToggleButton-->
+<!--                android:id="@+id/Eyeliner"-->
+<!--                android:layout_width="37dp"-->
+<!--                android:layout_height="37dp"-->
 
-                android:background="@drawable/eyeliner_toggle"
+<!--                android:background="@drawable/eyeliner_toggle"-->
 
-                android:padding="10dp"
-                android:layout_margin="10dp"
-                android:layout_gravity="center"
-                />
-        </FrameLayout>
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+<!--                android:padding="10dp"-->
+<!--                android:layout_margin="10dp"-->
+<!--                android:layout_gravity="center"-->
+<!--                />-->
+<!--        </FrameLayout>-->
+<!--        <FrameLayout-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_weight="1">-->
 
-            <ToggleButton
-                android:id="@+id/blush_icon"
-                android:layout_width="40sp"
-                android:layout_height="40sp"
-                android:padding="6dp"
-                android:layout_gravity="center"
-                android:background="@drawable/toggle_selector"
-                />
-        </FrameLayout>
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+<!--            <ToggleButton-->
+<!--                android:id="@+id/blush_icon"-->
+<!--                android:layout_width="40sp"-->
+<!--                android:layout_height="40sp"-->
+<!--                android:padding="6dp"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:background="@drawable/toggle_selector"-->
+<!--                />-->
+<!--        </FrameLayout>-->
+<!--        <FrameLayout-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_weight="1">-->
 
-            <ToggleButton
-                android:id="@+id/lipstick_icon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:padding="6dp"
-                android:checked="true"
-                android:background="@drawable/lipstick_toggle"
+<!--            <ToggleButton-->
+<!--                android:id="@+id/lipstick_icon"-->
+<!--                android:layout_width="40dp"-->
+<!--                android:layout_height="40dp"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:padding="6dp"-->
+<!--                android:checked="true"-->
+<!--                android:background="@drawable/lipstick_toggle"-->
 
-                />
-        </FrameLayout>
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+<!--                />-->
+<!--        </FrameLayout>-->
+<!--        <FrameLayout-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_weight="1">-->
 
-            <ToggleButton
-                android:id="@+id/eyeshadow_icon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:background="@drawable/eyeshadow_toggle"
-                android:padding="6dp"
+<!--            <ToggleButton-->
+<!--                android:id="@+id/eyeshadow_icon"-->
+<!--                android:layout_width="40dp"-->
+<!--                android:layout_height="40dp"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:background="@drawable/eyeshadow_toggle"-->
+<!--                android:padding="6dp"-->
 
-                />
+<!--                />-->
 
-        </FrameLayout>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:orientation="horizontal"
-        android:layout_above="@id/listMode"
-        android:id="@+id/shade_mode"
+<!--        </FrameLayout>-->
+<!--    </LinearLayout>-->
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="55dp"-->
+<!--        android:orientation="horizontal"-->
+<!--        android:layout_above="@id/listMode"-->
+<!--        android:id="@+id/shade_mode"-->
 
-        android:background="@color/black_de"
-        android:visibility="gone">
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvShade"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="none"
-            android:visibility="visible" />
-
-
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:background="@color/black_de"
-        android:orientation="horizontal"
-        android:gravity="bottom"
-        android:id="@+id/listMode"
-        android:layout_alignParentBottom="true"
-        android:weightSum= "3"
-        android:visibility="gone"
-        android:baselineAligned="false">
-
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="55dp"
-            android:layout_weight="1">
-
-            <ImageView
-                android:id="@+id/facingSwitch"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_margin="0dp"
+<!--        android:background="@color/black_de"-->
+<!--        android:visibility="gone">-->
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/rvShade"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:scrollbars="none"-->
+<!--            android:visibility="visible" />-->
 
 
-                android:padding="0dp"
-                android:src="@drawable/switchcamera" />
-        </FrameLayout>
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+<!--    </LinearLayout>-->
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="55dp"-->
+<!--        android:background="@color/black_de"-->
+<!--        android:orientation="horizontal"-->
+<!--        android:gravity="bottom"-->
+<!--        android:id="@+id/listMode"-->
+<!--        android:layout_alignParentBottom="true"-->
+<!--        android:weightSum= "3"-->
+<!--        android:visibility="gone"-->
+<!--        android:baselineAligned="false">-->
 
-            <ToggleButton
-                android:id="@+id/mode_icon"
-                android:layout_width="50sp"
-                android:layout_height="50sp"
-                android:layout_gravity="center"
-                android:background="@drawable/mode_toggle"
-                android:padding="6dp"
+<!--        <FrameLayout-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="55dp"-->
+<!--            android:layout_weight="1">-->
 
-                android:src="@drawable/mode4" />
-        </FrameLayout>
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+<!--            <ImageView-->
+<!--                android:id="@+id/facingSwitch"-->
+<!--                android:layout_width="40dp"-->
+<!--                android:layout_height="40dp"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:layout_margin="0dp"-->
 
-            <ImageView
-                android:id="@+id/shade_icon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:background="@drawable/btn_capture_options"
-                android:src="@drawable/shade_icon"
-                />
-        </FrameLayout>
-    </LinearLayout>
+
+<!--                android:padding="0dp"-->
+<!--                android:src="@drawable/switchcamera" />-->
+<!--        </FrameLayout>-->
+<!--        <FrameLayout-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_weight="1">-->
+
+<!--            <ToggleButton-->
+<!--                android:id="@+id/mode_icon"-->
+<!--                android:layout_width="50sp"-->
+<!--                android:layout_height="50sp"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:background="@drawable/mode_toggle"-->
+<!--                android:padding="6dp"-->
+
+<!--                android:src="@drawable/mode4" />-->
+<!--        </FrameLayout>-->
+<!--        <FrameLayout-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_weight="1">-->
+
+<!--            <ImageView-->
+<!--                android:id="@+id/shade_icon"-->
+<!--                android:layout_width="40dp"-->
+<!--                android:layout_height="40dp"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:background="@drawable/btn_capture_options"-->
+<!--                android:src="@drawable/shade_icon"-->
+<!--                />-->
+<!--        </FrameLayout>-->
+<!--    </LinearLayout>-->
 
     <ScrollView
         android:layout_width="match_parent"
@@ -1153,8 +1186,10 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/lightgray"
-                android:hint="Username"
+                android:hint="eg. Naveen Sharma"
                 android:textSize="15sp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
                 android:textColorHint="@color/text_gray"
                 android:layout_centerInParent="true"
                 />
@@ -1187,9 +1222,11 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/lightgray"
-                android:hint="Email Id"
+                android:hint="eg. naveensharma@gofynd.com"
                 android:inputType="textEmailAddress"
                 android:textSize="15sp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
                 android:textColorHint="@color/text_gray"
                 android:layout_centerInParent="true"
                 />
@@ -1225,10 +1262,12 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/lightgray"
 
-                android:hint="Query"
+                android:hint="eg. Need to know about AR Beauty Face Product"
                 android:textSize="15sp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
                 android:layout_gravity="bottom"
-                android:gravity="bottom"
+                android:gravity="top"
                 android:lines="6"
                 android:textColorHint="@color/text_gray"
                 android:layout_centerInParent="true"
@@ -1335,6 +1374,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@color/white"
+        android:layout_marginBottom="0dp"
         android:id="@+id/camera_content_footer"
         android:visibility="gone"
 
@@ -1587,6 +1627,7 @@
             android:layout_height="190dp"
             android:layout_marginBottom="58dp"
             android:orientation="horizontal"
+            android:id="@+id/walkthroughllContainer1"
             android:layout_alignParentBottom="true"
 
             android:weightSum="9">

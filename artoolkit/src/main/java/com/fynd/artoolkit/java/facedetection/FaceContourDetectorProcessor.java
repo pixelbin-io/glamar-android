@@ -296,6 +296,7 @@ public class FaceContourDetectorProcessor extends VisionProcessorBase<List<Fireb
                     bitmapQueue = new ConcurrentLinkedQueue<Bitmap>();
                     smallVideostart=false;
                     bitmapQueue.add(originalCameraImage);
+
                     new FrametoVideo().execute(1);
                 }
                 else if(smallVideoEnd) {

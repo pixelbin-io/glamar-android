@@ -45,8 +45,8 @@ public class Data {
                 new DataHolder("", R.drawable.hair_bg,"#800000"),
                 new DataHolder("", R.drawable.hair_bg,"#FF6347"),
                 new DataHolder("", R.drawable.hair_bg,"#0000A0"),
-                new DataHolder("", R.drawable.hair_bg,"#000000"));
-//                new DataHolder("", R.drawable.hair_bg,"#f88379"),
+                new DataHolder("", R.drawable.hair_bg,"#000000"),
+                new DataHolder("", R.drawable.hair_bg,"#E6E8FA"));
 //                new DataHolder("", R.drawable.hair_bg,"#FFE5B4"),
 //                new DataHolder("", R.drawable.hair_bg,"#FFA500"));
     }
