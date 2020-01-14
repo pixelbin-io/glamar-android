@@ -379,7 +379,7 @@
                             android:layout_height="match_parent"
                             android:paddingLeft="20dp"
                             android:paddingTop="5dp"
-                            android:src="@drawable/app_ic"></ImageView>
+                            android:src="@mipmap/ic_launcher_icon_foreground"></ImageView>
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -1039,7 +1039,7 @@
                         android:layout_height="28dp"
                         android:layout_gravity="center"
                         android:layout_marginTop="10dp"
-                        android:src="@drawable/app_ic"/>
+                        android:src="@mipmap/ic_launcher_icon_foreground"/>
                 </LinearLayout>
 
                 <LinearLayout

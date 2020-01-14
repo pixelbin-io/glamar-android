@@ -21,12 +21,12 @@ public class Data {
 
     public List<DataHolder> getForecasts() {
         return Arrays.asList(
-                new DataHolder("Normal", R.drawable.normal_ic,""),
-                new DataHolder("lipstic", R.drawable.lipstic_ic,""),
-                new DataHolder("Blush", R.drawable.blush_ic,""),
-                new DataHolder("Eyeliner", R.drawable.eye_liner_ic,""),
-                new DataHolder("Eyeshadow", R.drawable.eyeshadow_ic,""),
-                new DataHolder("Eyeshadow", R.drawable.eyeshadow_ic,"")
+                new DataHolder("Normal", R.drawable.ic_nofilter,""),
+                new DataHolder("lipstic", R.drawable.ic_lipstick,""),
+                new DataHolder("Blush", R.drawable.ic_blush,""),
+                new DataHolder("Eyeliner", R.drawable.ic_liner,""),
+                new DataHolder("Eyeshadow", R.drawable.ic_eyeshadow,""),
+                new DataHolder("Eyeshadow", R.drawable.ic_kajal,"")
               //  new DataHolder("Eyeshadow", R.drawable.eyeshadow_ic,"")
                 );
     }
