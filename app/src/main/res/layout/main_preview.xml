@@ -1404,7 +1404,7 @@
                     android:gravity="center"
                     android:layout_marginTop="8dp"
                     android:scaleType="fitXY"
-                    android:background="@drawable/switchcamera"
+                    android:background="@drawable/gallery"
 
                     android:textOff=""
                     android:textOn=""/>
@@ -1617,9 +1617,10 @@
                 android:layout_width="55dp"
                 android:layout_height="55dp"
                 android:layout_gravity="center"
+                android:id="@+id/walkthrough_image"
 
 
-                android:src="@drawable/normal_ic"></ImageView>
+                android:src="@drawable/ic_nofilter"></ImageView>
 
         </FrameLayout>
 

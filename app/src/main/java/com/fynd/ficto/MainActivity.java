@@ -189,6 +189,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     SharedPreferences.Editor editor;
     private int walhkthroughCount=1;
     boolean firstTime=false;
+    ImageView walkthroughImage;
 
 
     colorAdapter mColorAdapter;
@@ -208,6 +209,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         walkthroughtBlankLL=findViewById(R.id.walkthroughtBlankLL);
         walkthroughllContainer1=findViewById(R.id.walkthroughllContainer1);
         filterFirstWalkthrough=findViewById(R.id.filterFirstWalkthrough);
+        walkthroughImage=findViewById(R.id.walkthrough_image);
         dotImageWalktrough=findViewById(R.id.dotImageWalktrough);
         mEmailHomeContainer=findViewById(R.id.base_content_footer);
         mContentContainer=findViewById(R.id.content_home);
@@ -289,6 +291,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     walkthroughtSecondImageContainer.setVisibility(View.GONE);
                     dotImageWalktrough.setVisibility(View.VISIBLE);
                     filterFirstWalkthrough.setVisibility(View.VISIBLE);
+                    walkthroughImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_lipstick));
 //                    LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
 //                            0,
 //                            LinearLayout.LayoutParams.MATCH_PARENT,
@@ -329,6 +332,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             public void onClick(View v) {
 
                 StorageUtils.Media media = storageUtils.getLatestMedia();
+                if(media==null){
+                    Toast.makeText(getApplicationContext(),"No Image to Display",Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Uri pathUri=media.uri;
                 Uri uri=null;
 
@@ -1418,11 +1425,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             alertDialogBuilder.setPositiveButton(R.string.go_to_setting,
                     new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface arg0, int arg1) {
+                        public void onClick(DialogInterface dialog, int arg1) {
+                            dialog.cancel();
                             Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                             Uri uri = Uri.fromParts("package", getPackageName(), null);
                             intent.setData(uri);
                             startActivity(intent);
+
+
                             //Toast.makeText(MainActivity.this,"You clicked yes button",Toast.LENGTH_LONG).show();
                         }
                     });
@@ -1430,7 +1440,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             alertDialogBuilder.setNegativeButton(R.string.exit,new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    finish();
+                    dialog.cancel();
+                    //finish();
                 }
             });
 
@@ -1445,7 +1456,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             alertDialogBuilder.setPositiveButton(R.string.request_permission,
                     new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface arg0, int arg1) {
+                        public void onClick(DialogInterface dialog, int arg1) {
+                            dialog.cancel();
                             getRuntimePermissions();
                             //Toast.makeText(MainActivity.this,"You clicked yes button",Toast.LENGTH_LONG).show();
                         }
@@ -1454,6 +1466,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             alertDialogBuilder.setNegativeButton(R.string.exit,new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
                     finish();
                 }
             });
@@ -1644,6 +1657,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 cameraSource.release();
                 cameraSource = null;
             }
+        }
+        else{
+            createCameraSource(selectedModel);
         }
     }
     @Override
