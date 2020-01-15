@@ -1,27 +1,28 @@
 package com.fynd.ficto;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.PorterDuff;
-import android.graphics.Rect;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.OvalShape;
 import android.hardware.Camera;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -51,6 +52,7 @@ import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
@@ -186,6 +188,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     String MyPREFERENCES="DemoArApp";
     SharedPreferences.Editor editor;
     private int walhkthroughCount=1;
+    boolean firstTime=false;
 
 
     colorAdapter mColorAdapter;
@@ -821,6 +824,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             createCameraSource(selectedModel);
         } else {
             getRuntimePermissions();
+            firstTime=true;
         }
 
 //        facingSwitch.setOnClickListener(new View.OnClickListener() {
@@ -943,7 +947,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         //seekBar.getThumb().setColorFilter(getResources().getColor(R.color.beauty_orange), PorterDuff.Mode.SRC_IN);
 
-
+        seekBar.setProgress(50);
+        faceContourDetectorProcessor.setMakeupOpacitiy(0.5f);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -1395,9 +1400,70 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         if (allPermissionsGranted()) {
             createCameraSource(selectedModel);
         }
+        else{
+            showDialog();
+
+
+        }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    public void showDialog(){
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA) || !ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)  ){
+
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            alertDialogBuilder.setTitle("Permission Required");
+            alertDialogBuilder.setMessage("Camera and Storage permission are required to continue, please give permission from setting");
+
+            alertDialogBuilder.setPositiveButton(R.string.go_to_setting,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface arg0, int arg1) {
+                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                            Uri uri = Uri.fromParts("package", getPackageName(), null);
+                            intent.setData(uri);
+                            startActivity(intent);
+                            //Toast.makeText(MainActivity.this,"You clicked yes button",Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+            alertDialogBuilder.setNegativeButton(R.string.exit,new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                }
+            });
+
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
+        }
+        else{
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            alertDialogBuilder.setTitle("Permission Required");
+            alertDialogBuilder.setMessage("Camera and Storage permission are required to continue");
+
+            alertDialogBuilder.setPositiveButton(R.string.request_permission,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface arg0, int arg1) {
+                            getRuntimePermissions();
+                            //Toast.makeText(MainActivity.this,"You clicked yes button",Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+            alertDialogBuilder.setNegativeButton(R.string.exit,new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                }
+            });
+
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
+
+        }
+
+    }
     private static boolean isPermissionGranted(Context context, String permission) {
         if (ContextCompat.checkSelfPermission(context, permission)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -1411,7 +1477,18 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
-        startCameraSource();
+
+        if(allPermissionsGranted()){
+            startCameraSource();
+        }
+        else{
+            if(!firstTime){
+                showDialog();
+
+            }
+
+        }
+
     }
 
     /**
@@ -1421,6 +1498,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     protected void onPause() {
         super.onPause();
         preview.stop();
+        firstTime=false;
     }
 
     @Override
@@ -1461,16 +1539,52 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
     public void setUiBottomLayout(){
-        if(preview!=null & preview.getScreenExtraSize()!=-999 & preview.getScreenExtraSize()!=0){
+        if(preview!=null & preview.getScreenExtraSize()!=-999 & preview.getScreenExtraSize()!=0 ){
 
             float dp = preview.getScreenExtraSize() / getResources().getDisplayMetrics().density;
-            int paramMargin=(int)dp+55;
-            int paramMargin1=paramMargin+115;
-            int paramMargin2=paramMargin1+215;
-            int paramMargin3=paramMargin1+50;
-            int paramMargin4=paramMargin1+75;
-            int paramMargin5=paramMargin1+50;
-            int paramMargin6=paramMargin1+50;
+            int paramMargin=(int)dp-55;
+            int paramMargin1=(int)dp-15;
+            int paramMargin2=paramMargin+135;
+            int paramMargin3=paramMargin+58;
+            int paramMargin4=paramMargin+68;
+            int paramMargin5=paramMargin+58;
+            int paramMargin6=paramMargin+58;
+            Resources r = getApplication().getResources();
+            paramMargin = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    paramMargin,
+                    r.getDisplayMetrics()
+            );
+            paramMargin1 = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    paramMargin1,
+                    r.getDisplayMetrics()
+            );
+            paramMargin2 = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    paramMargin2,
+                    r.getDisplayMetrics()
+            );
+            paramMargin3 = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    paramMargin3,
+                    r.getDisplayMetrics()
+            );
+            paramMargin4 = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    paramMargin4,
+                    r.getDisplayMetrics()
+            );
+            paramMargin5 = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    paramMargin5,
+                    r.getDisplayMetrics()
+            );
+            paramMargin6 = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    paramMargin6,
+                    r.getDisplayMetrics()
+            );
             ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) mCameraFooterContainer.getLayoutParams();
             params.setMargins(0, 0, 0, paramMargin);
             mCameraFooterContainer.setLayoutParams(params);
@@ -1480,27 +1594,21 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             ViewGroup.MarginLayoutParams params2 = (ViewGroup.MarginLayoutParams) mCircularRecyclerShadeContainer.getLayoutParams();
             params2.setMargins(0, 0, 0, paramMargin2);
             mCircularRecyclerShadeContainer.setLayoutParams(params2);
-
             ViewGroup.MarginLayoutParams params3 = (ViewGroup.MarginLayoutParams) mVideoClickContainer.getLayoutParams();
             params3.setMargins(0, 0, 0, paramMargin3);
             mVideoClickContainer.setLayoutParams( params3);
-
             ViewGroup.MarginLayoutParams params4 = (ViewGroup.MarginLayoutParams) filterFirstWalkthrough.getLayoutParams();
             params4.setMargins(0, 0, 0, paramMargin4);  // left, top, right, bottom
             filterFirstWalkthrough.setLayoutParams(params4);
-
             ViewGroup.MarginLayoutParams params5 = (ViewGroup.MarginLayoutParams) dotImageWalktrough.getLayoutParams();
             params5.setMargins(0, 0, 0, paramMargin5);  // left, top, right, bottom
             dotImageWalktrough.setLayoutParams(params5);
-
-
             ViewGroup.MarginLayoutParams params6 = (ViewGroup.MarginLayoutParams) walkthroughllContainer1.getLayoutParams();
 
             params6.setMargins(0, 0, 0, paramMargin6);
             walkthroughllContainer1.setLayoutParams(params6);
 
-
-            Log.d("actualpreview"," extrasize "+dp );
+            Log.d("actualpreview"," extrasize paramMargin "+paramMargin );
 
         }
         else{
@@ -1595,16 +1703,16 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             else{
                 colorPicker.setVisibility(View.VISIBLE);
             }
-            View row = modePicker.getLayoutManager().findViewByPosition(0);
-            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) row.getLayoutParams();
-            Rect rectf = new Rect();
-
-//For coordinates location relative to the parent
-            row.getLocalVisibleRect(rectf);
-
-            int test1[] = new int[2];
-            row.getLocationOnScreen(test1);
-            Log.d("UIPOInt"," "+rectf.left+" "+rectf.right+" "+rectf.top+" "+rectf.bottom);
+//            View row = modePicker.getLayoutManager().findViewByPosition(0);
+//            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) row.getLayoutParams();
+//            Rect rectf = new Rect();
+//
+////For coordinates location relative to the parent
+//            row.getLocalVisibleRect(rectf);
+//
+//            int test1[] = new int[2];
+//            row.getLocationOnScreen(test1);
+//            Log.d("UIPOInt"," "+rectf.left+" "+rectf.right+" "+rectf.top+" "+rectf.bottom);
 
 
 

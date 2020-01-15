@@ -29,7 +29,9 @@
     <string name="your_name">Your Name*</string>
     <string name="your_subject">Email Id</string>
     <string name="your_query">Your Querry*</string>
-
+    <string name="request_permission">Request Permission</string>
+    <string name="go_to_setting">Go to Setting</string>
+    <string name="exit">Close App</string>
     <string name="dsv_ex_msg_dont_set_lm">You should not set LayoutManager on DiscreteScrollView.class instance. Library uses a special one. Just don\'t call the method.</string>
     <string name="dsv_ex_msg_adapter_wrong_recycler">InfiniteScrollAdapter is supposed to work only with DiscreteScrollView</string>
     <string name="pref_key_transition_time" translatable="false">pref_key_transition_time</string>

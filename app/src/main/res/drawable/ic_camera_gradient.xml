@@ -22,7 +22,9 @@
     <item android:gravity="center"
         >
         <bitmap android:src="@drawable/ic_camera"
-            android:gravity="fill_horizontal" />
+            android:scaleType="fitCenter"
+
+            android:gravity="center" />
 
     </item>
 
