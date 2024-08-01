@@ -1,6 +1,0 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <dimen name="fab_margin">16dp</dimen>
-    <dimen name="design_fab_image_size" tools:override="true">56dp</dimen>
-    <dimen name="cvb_border_width">7dp</dimen>
-
-</resources>
