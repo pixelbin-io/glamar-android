@@ -33,6 +33,7 @@ class GlamARView @JvmOverloads constructor(
     private val webView: WebView = WebView(context).apply {
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         settings.javaScriptEnabled = true
+        settings.mediaPlaybackRequiresUserGesture = false
         webViewClient = WebViewClient()
         webChromeClient = object : WebChromeClient() {
             override fun onPermissionRequest(request: PermissionRequest) {
@@ -215,13 +216,12 @@ class GlamARView @JvmOverloads constructor(
                         }
 
                         "loaded" -> {
-                            Handler().postDelayed({ when (previewMode) {
+                            when (previewMode) {
                                 PreviewMode.IMAGE -> imageUrl?.let { openImagePreview(it) }
                                 PreviewMode.CAMERA -> openCameraPreview()
                                 PreviewMode.NONE -> { /* Do nothing */
                                 }
-                            } }, 1000)
-
+                            }
                             defaultCallback?.get()?.onLoaded()
                         }
 
