@@ -17,8 +17,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var glamARView: GlamArView
 
     init {
-        //        GlamAr.initialize(accessKey = "ZmY0MTQ2YzktMzg2YS00NjNkLTliN2QtNDE5MWJmYTM1Yzdm")
-        GlamAr.initialize(accessKey = "ODkzZmU1ZGItZDg5ZS00Yzc3LTk2NjktYTM2OTZhZjRlNGVi", false)
+        GlamAr.initialize(accessKey = "93009942-7912-462c-a688-90e6aa8b5b81", development = true)
+        //GlamAr.initialize(accessKey = "ODkzZmU1ZGItZDg5ZS00Yzc3LTk2NjktYTM2OTZhZjRlNGVi", false)
     }
 
 
@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         applyBtn.setOnClickListener {
-            glamARView.applySku(skuId = "68f2e7ad-f74e-4944-9910-e9a3186559f2", category = "style")
+            glamARView.applySku(skuId = "3b4bbcf0-7ce7-4687-ad8f-8108d1247b96", category = "beauty")
         }
 
         initBtn.setOnClickListener {

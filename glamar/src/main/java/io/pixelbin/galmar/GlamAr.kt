@@ -107,7 +107,10 @@ class GlamAr private constructor(val accessKey: String, val development: Boolean
                 "$BASE_URL/service/private/misc/v1.0/skus?pageNo=$pageNo&pageSize=$pageSize"
             val request = Request.Builder()
                 .url(url)
-                .header("Authorization", "Bearer $accessKey")
+                .header(
+                    "Authorization",
+                    "Bearer ${Base64.getEncoder().encodeToString(accessKey.toByteArray())}"
+                )
                 .get()
                 .build()
             try {
@@ -131,7 +134,10 @@ class GlamAr private constructor(val accessKey: String, val development: Boolean
             val url = "$BASE_URL/service/private/misc/v1.0/skus/$id"
             val request = Request.Builder()
                 .url(url)
-                .header("Authorization", "Bearer $accessKey")
+                .header(
+                    "Authorization",
+                    "Bearer ${Base64.getEncoder().encodeToString(accessKey.toByteArray())}"
+                )
                 .get()
                 .build()
             try {
@@ -195,10 +201,11 @@ class GlamArView @JvmOverloads constructor(
 
     private fun init() {
         GlamAr.getInstance()
+        Log.d("reloadPage", previewMode.toString())
         val script = when (previewMode) {
-            is PreviewMode.None -> "window.parent.postMessage({ type: 'initialize', payload: { platform: 'android', apiKey:'${GlamAr.getInstance().accessKey}', disableCrossIcon: true, disablePrevIcon: true} }, '*');"
-            is PreviewMode.Image -> "window.parent.postMessage({ type: 'initialize', payload: { platform: 'android', apiKey:'${GlamAr.getInstance().accessKey}', disableCrossIcon: true, disablePrevIcon: true, openImageOnInit : '${(previewMode as PreviewMode.Image).imageUrl}'} }, '*');"
-            is PreviewMode.Camera -> "window.parent.postMessage({ type: 'initialize', payload: { platform: 'android', apiKey:'${GlamAr.getInstance().accessKey}', disableCrossIcon: true, disablePrevIcon: true, openLiveOnInit : true} }, '*');"
+            is PreviewMode.None -> "window.parent.postMessage({ type: 'initialize', payload: {mode:'private', platform: 'android', apiKey:'${GlamAr.getInstance().accessKey}', disableCrossIcon: true, disablePrevIcon: true} }, '*');"
+            is PreviewMode.Image -> "window.parent.postMessage({ type: 'initialize', payload: {mode :'private', platform: 'android', apiKey:'${GlamAr.getInstance().accessKey}', disableCrossIcon: true, disablePrevIcon: true, openImageOnInit : '${(previewMode as PreviewMode.Image).imageUrl}'} }, '*');"
+            is PreviewMode.Camera -> "window.parent.postMessage({ type: 'initialize', payload: {mode :'private', platform: 'android', apiKey:'${GlamAr.getInstance().accessKey}', disableCrossIcon: true, disablePrevIcon: true, openLiveOnInit : true} }, '*');"
         }
         evaluateJavascript(script)
     }
@@ -231,6 +238,7 @@ class GlamArView @JvmOverloads constructor(
             else -> prodStyleHost
         }
         webView.loadUrl(host)
+        Log.d("reloadPage", host)
     }
 
     // Apply SKU in the WebView
