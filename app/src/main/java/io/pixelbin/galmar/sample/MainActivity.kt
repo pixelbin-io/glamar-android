@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 
 
         // Fetch SKU list in a background thread
-        GlamAr.getInstance().fetchSkuList(pageNo = 1, pageSize = 100) { result ->
+        GlamAr.getInstance().api.fetchSkuList(pageNo = 1, pageSize = 100) { result ->
             result.onSuccess { skuListResponse ->
                 Log.e("MainActivity", "Fetched SKU List: $skuListResponse")
             }.onFailure { exception ->
@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Fetch a specific SKU in a background thread
-        GlamAr.getInstance().fetchSku(id = "0a1bf713-b596-44fb-a0f5-0bc5c2c57235") { result ->
+        GlamAr.getInstance().api.fetchSku(id = "0a1bf713-b596-44fb-a0f5-0bc5c2c57235") { result ->
             result.onSuccess { item ->
                 Log.e("MainActivity", "Fetched SKU Item: $item")
             }.onFailure { exception ->
@@ -69,12 +69,6 @@ class MainActivity : AppCompatActivity() {
         val move = findViewById<Button>(R.id.move)
         val download = findViewById<Button>(R.id.download)
 
-//        glamARView.startPreview(
-//            previewMode = PreviewMode.None,
-//        )
-//        glamARView.startPreview(
-//            previewMode = PreviewMode.Camera,
-//        )
         glamARView.startPreview(
             previewMode = PreviewMode.Image(imageUrl = "https://cdn.pixelbin.io/v2/glamar-fynd-835885/original/glamar-custom-data/models/makeup/2.jpg"),
         )
