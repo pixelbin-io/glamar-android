@@ -80,14 +80,14 @@ class MainActivity : AppCompatActivity() {
         )
 
         applyBtn.setOnClickListener {
-            glamARView.applySku(skuId = "3b4bbcf0-7ce7-4687-ad8f-8108d1247b96", category = "beauty")
+            glamARView.applySku(skuId = "666b311f-1b34-4082-99d1-c525451b44a1", category = "beauty")
         }
 
         initBtn.setOnClickListener {
             glamARView.clear()
         }
         move.setOnClickListener {
-            glamARView.configChange("down")
+            glamARView.configChange("Opacity", 0.2)
         }
         download.setOnClickListener {
             glamARView.snapshot()

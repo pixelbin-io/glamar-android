@@ -258,7 +258,7 @@ class GlamArView @JvmOverloads constructor(
     }
 
     // Change configuration in the WebView
-    fun configChange(options: String, value: String? = null) {
+    fun configChange(options: String, value: Double? = null) {
         val script = if (value != null) {
             "window.parent.postMessage({ type: 'configChange', payload: { options: '$options', value: '$value' }}, '*');"
         } else {
