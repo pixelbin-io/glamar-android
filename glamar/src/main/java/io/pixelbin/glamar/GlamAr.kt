@@ -19,7 +19,9 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
-import com.google.gson.annotations.SerializedName
+import io.pixelbin.glamar.model.Item
+import io.pixelbin.glamar.model.SkuItemResponse
+import io.pixelbin.glamar.model.SkuListResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -497,49 +499,13 @@ private class RequestSigningInterceptor(
     }
 }
 
-// Data classes for API responses
-data class Page(
-    @SerializedName("type") val type: String,
-    @SerializedName("size") val size: Int,
-    @SerializedName("current") val current: Int,
-    @SerializedName("hasNext") val hasNext: Boolean,
-    @SerializedName("itemTotal") val itemTotal: Int
-)
 
-data class Attribute(
-    @SerializedName("icons") val icons: List<String>,
-    @SerializedName("colors") val colors: List<String>,
-    @SerializedName("effectAssets") val effectAssets: List<String>
-)
 
-data class Meta(
-    @SerializedName("material") val material: String,
-    @SerializedName("dimension") val dimension: String
-)
 
-data class Item(
-    @SerializedName("_id") val id: String,
-    @SerializedName("orgId") val orgId: Int,
-    @SerializedName("category") val category: String,
-    @SerializedName("subCategory") val subCategory: String,
-    @SerializedName("productName") val productName: String,
-    @SerializedName("productImage") val productImage: String,
-    @SerializedName("vendor") val vendor: String,
-    @SerializedName("isActive") val isActive: Boolean,
-    @SerializedName("itemCode") val itemCode: String,
-    @SerializedName("styleVariant") val styleVariant: String?,
-    @SerializedName("styleIcon") val styleIcon: String,
-    @SerializedName("attributes") val attributes: List<Attribute>,
-    @SerializedName("meta") val meta: Meta,
-    @SerializedName("createdAt") val createdAt: Date,
-    @SerializedName("updatedAt") val updatedAt: Date
-)
 
-data class SkuListResponse(
-    @SerializedName("page") val page: Page,
-    @SerializedName("items") val items: List<Item>
-)
 
-data class SkuItemResponse(
-    @SerializedName("sku") val item: Item
-)
+
+
+
+
+
