@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
 
     init {
         //        GlamAr.initialize(accessKey = "ZmY0MTQ2YzktMzg2YS00NjNkLTliN2QtNDE5MWJmYTM1Yzdm")
-        GlamAr.initialize(accessKey = "ODkzZmU1ZGItZDg5ZS00Yzc3LTk2NjktYTM2OTZhZjRlNGVi")
+        GlamAr.initialize(accessKey = "ODkzZmU1ZGItZDg5ZS00Yzc3LTk2NjktYTM2OTZhZjRlNGVi", false)
     }
 
 

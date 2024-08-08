@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.os.Handler
 import android.util.AttributeSet
 import android.util.Log
 import android.webkit.PermissionRequest
@@ -59,6 +58,7 @@ private class DateDeserializer : JsonDeserializer<Date> {
 // Main GlamAR class
 class GlamAr private constructor(val accessKey: String, val development: Boolean = true) {
 
+
     // OkHttpClient with request signing interceptor
     private val client = OkHttpClient.Builder()
         .addInterceptor(
@@ -77,14 +77,19 @@ class GlamAr private constructor(val accessKey: String, val development: Boolean
             return gsonBuilder.create()
         }
 
+
     companion object {
         @Volatile
         private var instance: GlamAr? = null
+        private var BASE_URL = ""
+        private val devBaseUrl = "https://api.pixelbinz0.de"
+        private val prodBaseUrl = "https://api.pixelbin.io"
 
         // Initialize GlamAR singleton
-        fun initialize(accessKey: String): GlamAr {
+        fun initialize(accessKey: String, development: Boolean = true): GlamAr {
             return instance ?: synchronized(this) {
-                instance ?: GlamAr(accessKey).also { instance = it }
+                BASE_URL = if (development) devBaseUrl else prodBaseUrl
+                instance ?: GlamAr(accessKey, development = development).also { instance = it }
             }
         }
 
@@ -99,7 +104,7 @@ class GlamAr private constructor(val accessKey: String, val development: Boolean
     fun fetchSkuList(pageNo: Int, pageSize: Int, callback: (Result<SkuListResponse>) -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
             val url =
-                "https://api.pixelbinz0.de/service/private/misc/v1.0/skus?pageNo=$pageNo&pageSize=$pageSize"
+                "$BASE_URL/service/private/misc/v1.0/skus?pageNo=$pageNo&pageSize=$pageSize"
             val request = Request.Builder()
                 .url(url)
                 .header("Authorization", "Bearer $accessKey")
@@ -123,7 +128,7 @@ class GlamAr private constructor(val accessKey: String, val development: Boolean
     // Fetch single SKU from API
     fun fetchSku(id: String, callback: (Result<Item>) -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
-            val url = "https://api.pixelbinz0.de/service/private/misc/v1.0/skus/$id"
+            val url = "$BASE_URL/service/private/misc/v1.0/skus/$id"
             val request = Request.Builder()
                 .url(url)
                 .header("Authorization", "Bearer $accessKey")
@@ -295,11 +300,13 @@ class GlamArView @JvmOverloads constructor(
                             val payload = argsJson.getJSONObject("payload").toMap()
                             defaultCallback?.get()?.onPhotoLoaded(payload)
                         }
+
                         "loaded" -> {
                             if (skuApplied.isNotBlank())
                                 evaluateJavascript("window.parent.postMessage({ type: 'applyBySku' , payload: { skuId: '${skuApplied}' } }, '*');")
                             defaultCallback?.get()?.onLoaded()
                         }
+
                         "error" -> {
                             val errorMessage =
                                 argsJson.optString("message", "Unknown error occurred")
