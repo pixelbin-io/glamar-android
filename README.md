@@ -26,14 +26,14 @@ The GlamAR SDK provides tools to integrate augmented reality (AR) features into 
 
 ### Initialize SDK in Application Class
 
-Initialize the SDK in your `Application` class to ensure it's set up when your app starts.
+Initialize the SDK in your `Application` class to ensure it's set up when your app starts. By default it will be pointing to development make development parameter false for prod.
 
 ```kotlin
 class MyApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        GlamAr.initialize(accessKey = "YOUR_ACCESS_KEY")
+        GlamAr.initialize(accessKey = "YOUR_ACCESS_KEY", development = false)
     }
 }
 ```
@@ -101,7 +101,7 @@ glamARView.snapshot()
 Fetch a list of SKUs:
 
 ```kotlin
-GlamAr.getInstance().fetchSkuList(pageNo = 1, pageSize = 100) { result ->
+GlamAr.getInstance().api.fetchSkuList(pageNo = 1, pageSize = 100) { result ->
     result.onSuccess { skuListResponse ->
         // Handle success
     }.onFailure { exception ->
@@ -115,7 +115,7 @@ GlamAr.getInstance().fetchSkuList(pageNo = 1, pageSize = 100) { result ->
 Fetch details of a specific SKU:
 
 ```kotlin
-GlamAr.getInstance().fetchSku(id = "SKU_ID") { result ->
+GlamAr.getInstance().api.fetchSku(id = "SKU_ID") { result ->
     result.onSuccess { item ->
         // Handle success
     }.onFailure { exception ->
