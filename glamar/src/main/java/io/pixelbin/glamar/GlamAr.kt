@@ -1,4 +1,4 @@
-package io.pixelbin.galmar
+package io.pixelbin.glamar
 
 import android.annotation.SuppressLint
 import android.app.Activity

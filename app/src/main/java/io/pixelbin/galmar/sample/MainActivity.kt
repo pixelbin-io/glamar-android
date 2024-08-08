@@ -7,9 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import io.pixelbin.galmar.GlamAr
-import io.pixelbin.galmar.GlamArView
-import io.pixelbin.galmar.PreviewMode
+import io.pixelbin.glamar.GlamAr
+import io.pixelbin.glamar.GlamArView
+import io.pixelbin.glamar.PreviewMode
 
 
 class MainActivity : AppCompatActivity() {

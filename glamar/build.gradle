@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace 'io.pixelbin.galmar'
+    namespace 'io.pixelbin.glamar'
     compileSdk 34
 
     defaultConfig {
