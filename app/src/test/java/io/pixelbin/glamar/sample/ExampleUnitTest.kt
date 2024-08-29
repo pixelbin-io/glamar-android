@@ -1,4 +1,4 @@
-package io.pixelbin.galmar.sample
+package io.pixelbin.glamar.sample
 
 import org.junit.Test
 

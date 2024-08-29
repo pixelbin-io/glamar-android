@@ -1,4 +1,4 @@
-package io.pixelbin.galmar.sample
+package io.pixelbin.glamar.sample
 
 import android.os.Bundle
 import android.util.Log
@@ -7,6 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import io.pixelbin.galmar.sample.R
+
 import io.pixelbin.glamar.GlamAr
 import io.pixelbin.glamar.GlamArView
 import io.pixelbin.glamar.PreviewMode
@@ -70,7 +72,7 @@ class MainActivity : AppCompatActivity() {
         val download = findViewById<Button>(R.id.download)
 
         glamARView.startPreview(
-            previewMode = PreviewMode.Image(imageUrl = "https://cdn.pixelbin.io/v2/glamar-fynd-835885/original/glamar-custom-data/models/makeup/2.jpg"),
+            previewMode = PreviewMode.Image(imageUrl = "https://cdn.pixelbin.io/v2/glamar-fynd-835885/original/glamar-custom-data/models/makeup/2.jpg"), isBeauty = true
         )
 
         applyBtn.setOnClickListener {

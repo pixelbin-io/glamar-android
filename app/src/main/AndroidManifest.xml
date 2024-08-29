@@ -15,7 +15,7 @@
         android:theme="@style/Theme.GalmARSample"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name="io.pixelbin.glamar.sample.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
