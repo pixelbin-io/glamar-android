@@ -1,5 +1,6 @@
 [versions]
 agp = "8.5.1"
+glamar = "1.0.0"
 glamarAndroid = "main"
 gson = "2.10.1"
 kotlin = "1.9.0"
@@ -15,6 +16,7 @@ okhttp = "4.11.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+glamar = { module = "io.pixelbin.glamar:glamar", version.ref = "glamar" }
 glamar-android = { module = "com.github.pixelbin-io:glamar-android", version.ref = "glamarAndroid" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
