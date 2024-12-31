@@ -25,7 +25,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/init"
+        android:id="@+id/clear"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Clear"
@@ -39,7 +39,7 @@
         android:layout_height="wrap_content"
         android:text="Move"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/init" />
+        app:layout_constraintStart_toEndOf="@id/clear" />
 
     <Button
         android:id="@+id/download"
@@ -48,5 +48,14 @@
         android:text="download"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/move" />
+
+    <Button
+        android:id="@+id/glamArChangeCategory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Change Analysis Category"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
