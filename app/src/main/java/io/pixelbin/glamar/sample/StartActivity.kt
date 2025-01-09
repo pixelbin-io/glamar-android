@@ -29,6 +29,7 @@ class StartActivity : AppCompatActivity() {
         val buttonNext = findViewById<Button>(R.id.buttonNext)
 
         buttonNext.setOnClickListener {
+            Log.d("GlamARView", "next button clicked")
             startActivity(Intent(this, MainActivity::class.java))
         }
     }

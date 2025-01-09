@@ -1,7 +1,11 @@
 package io.pixelbin.glamar
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.Application
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.WebView
@@ -16,7 +20,7 @@ object GlamArWebViewManager {
     private var glamArCallback: GlamArCallback? = null
     private var pMode: PreviewMode = PreviewMode.None
     private const val GLAM_AR_STAGING_URL = "https://glamarz0.de/sdk/"
-    private const val GLAM_AR_PROD_URL = "https://glamarz0.de/sdk/"
+    private const val GLAM_AR_PROD_URL = "https://glamar.io/sdk/"
 
     /**
      * Prepare a WebView instance with the given URL
@@ -94,7 +98,7 @@ object GlamArWebViewManager {
     /**
      * Clear the current WebView instance
      */
-    fun clearPreparedWebView() {
+    private fun clearPreparedWebView() {
         webView?.apply {
             clearCache(true)
             clearHistory()
@@ -119,21 +123,19 @@ object GlamArWebViewManager {
      */
     fun evaluateJavascript(script: String) {
         Log.d("GlamARView", "Evaluating: outside: $webView")
-
-        webView?.post {
-            Log.d("GlamARView", "Evaluating: $script")
-            webView?.evaluateJavascript(script) {
-                Log.d("GlamARView", "JavaScript evaluation result: $it")
-            }
+        Log.d("GlamARView", "Evaluating: $script")
+        webView?.evaluateJavascript(script) {
+            Log.d("GlamARView", "JavaScript evaluation result: $it")
         }
     }
 
     fun initPreview() {
+
         val script = when (pMode) {
             is PreviewMode.None -> "window.parent.postMessage({ type: 'initialize', payload: {mode:'private', platform: 'android', apiKey:'${GlamAr.getInstance().accessKey}', disableCrossIcon: true, disablePrevIcon: true} }, '*');"
             is PreviewMode.Image -> "window.parent.postMessage({ type: 'initialize', payload: {mode :'private', platform: 'android', apiKey:'${GlamAr.getInstance().accessKey}', disableCrossIcon: true, disablePrevIcon: true, openImageOnInit : '${(pMode as PreviewMode.Image).imageUrl}'} }, '*');"
             is PreviewMode.Camera -> "window.parent.postMessage({ type: 'initialize', payload: {mode :'private', platform: 'android', apiKey:'${GlamAr.getInstance().accessKey}', disableCrossIcon: true, disablePrevIcon: true, openLiveOnInit : true} }, '*');"
-            is PreviewMode.FaceAnalysis -> "window.parent.postMessage({ type: 'initialize', payload: {mode :'private', platform: 'android', apiKey:'${GlamAr.getInstance().accessKey}', category: 'faceanalysis', disableCrossIcon: true, disablePrevIcon: true, openLiveOnInit : true} }, '*');"
+            is PreviewMode.FaceAnalysis -> "window.parent.postMessage({ type: 'initialize', payload: {mode :'private', platform: 'android', apiKey:'${GlamAr.getInstance().accessKey}', category: 'faceanalysis', disableCrossIcon: true, disablePrevIcon: false, openLiveOnInit : true, skinAnalysis : { useSkinAnalysisDefaultConcernFilter: true, useSkinAnalysisDefaultTrackingFilter: false, useSkinAnalysisDefaultUI: true }} }, '*');"
         }
         evaluateJavascript(script)
     }

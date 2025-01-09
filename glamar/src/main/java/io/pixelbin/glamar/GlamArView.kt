@@ -20,7 +20,7 @@ class GlamArView @JvmOverloads constructor(
 
     init {
         if (GlamArWebViewManager.getPreparedWebView() == null) GlamArWebViewManager.prepareWebView(
-            context, GlamAr.getInstance().development
+            context, GlamAr.getInstance().debug
         )
         // Check if the WebView already has a parent
         (GlamArWebViewManager.getPreparedWebView()?.parent as? ViewGroup)?.removeView(
