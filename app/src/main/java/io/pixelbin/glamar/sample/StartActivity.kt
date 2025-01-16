@@ -4,16 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.ProgressBar
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import io.pixelbin.galmar.sample.R
-import io.pixelbin.glamar.GlamArCallback
-import io.pixelbin.glamar.GlamArWebViewManager
-import io.pixelbin.glamar.PreviewMode
 
 class StartActivity : AppCompatActivity() {
 
