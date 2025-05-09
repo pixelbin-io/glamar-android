@@ -5,9 +5,9 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context="io.pixelbin.glamar.sample.MainActivity">
 
-    <io.pixelbin.glamar.GlamArView
+    <FrameLayout
         android:id="@+id/glamARView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
