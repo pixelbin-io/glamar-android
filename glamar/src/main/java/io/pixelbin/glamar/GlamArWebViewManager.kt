@@ -82,7 +82,16 @@ object GlamArWebViewManager {
                 }
             }, "Android")
 
-            loadUrl(GlamAr.BASE_URL)
+            val sdkVersion = (overRides?.meta?.get("sdkVersion") as? String)?.takeIf { it.isNotBlank() }
+
+            val finalUrl = if (sdkVersion != null) {
+                "${GlamAr.BASE_URL}/v$sdkVersion?"
+            } else {
+                "${GlamAr.BASE_URL}?"
+            }
+
+            GlamArLogger.d("GlamArWebViewManager", "Evaluating: $finalUrl")
+            webView.loadUrl(finalUrl)
         }
     }
 

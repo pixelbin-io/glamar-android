@@ -11,7 +11,7 @@ class GlamAr private constructor(val accessKey: String) {
         @SuppressLint("StaticFieldLeak")
         @Volatile
         private var instance: GlamAr? = null
-        var BASE_URL = "https://glamar.io/sdk/"
+        var BASE_URL = "https://cdn.glamarz0.de/sdk"
 
         @SuppressLint("SetJavaScriptEnabled")
         fun init(
@@ -51,6 +51,14 @@ class GlamAr private constructor(val accessKey: String) {
         fun applySku(skuId: String) {
             evaluateJavascript("window.parent.postMessage({ type: 'applyBySku' , payload: { skuId: '${skuId}' } }, '*');")
         }
+        fun applyByCategory(category: String) {
+            evaluateJavascript("window.parent.postMessage({ type: 'applyByCategory' , payload: '${category}'  }, '*');")
+        }
+        fun applyByMultipleConfigData(config: (Any?) -> Unit) {
+            evaluateJavascript("window.parent.postMessage({ type: 'applyByMultipleConfigData' , payload: '${config}'  }, '*');")
+        }
+
+
 
         fun applyPatternId(patternId: String) {
             evaluateJavascript("window.parent.postMessage({ type: 'applyPatternByID' , payload: { patternId: '${patternId}' } }, '*');")

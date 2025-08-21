@@ -30,38 +30,25 @@ class MyApp : Application() {
         }
 
         val overrides = GlamAROverrides(
-            category = "sunglasses",
+
+            meta = mapOf(
+                "sdkVersion" to "2.0.0"
+            ),
             configuration = Configuration(
-                global = GlobalConfig(
-//                    openLiveOnInit = true,
-                    disableClose = true,
-                    disableBack = false
-                ),
+
 //                skinAnalysis = SkinAnalysisConfig(
 //                    version = "GlamGen",
 //                    defaultFilter = true,
 //                    startScreen = true
 //                ),
-//                ui = UIConfig(
-//                    loader = LoaderConfig(
-//                        disable = false,
-//                        jsonData = "https://cdn.pixelbin.io/v2/glamar-fynd-835885/original/glamar_assets/loaders/loader_default.json",
-//                        backgroundColor = "#000000"
-//                    ),
-//                    watermark = WatermarkConfig(
-//                        text = "Water Mark Text",
-//                        fontColor = "#00ff00",
-//                        logo = "https://cdn.pixelbin.io/v2/glamar-fynd-835885/original/glamar_assets/icons/cxr_logo_w-yDFY_5Mio.svg"
-//                    ),
-//             ar = ARConfig(disable3DUI = false)
-//                )
+
             )
         )
 
         // Initialise SDK
         GlamAr.init(
             context = this,
-            accessKey = "YOUR_ACCESS_KEY",
+            accessKey = "84145fd2-8b99-478b-a003-0cb4228f042e",
             overrides,
 //            webView,
 //            debug = BuildConfig.DEBUG,
