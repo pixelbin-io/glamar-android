@@ -19,9 +19,7 @@ data class GlobalConfig(
 )
 
 data class SkinAnalysisConfig(
-    val version: String? = null,
-    val defaultFilter: Boolean? = null,
-    val startScreen: Boolean? = null
+    val appId: String? = null,
 )
 
 data class UIConfig(

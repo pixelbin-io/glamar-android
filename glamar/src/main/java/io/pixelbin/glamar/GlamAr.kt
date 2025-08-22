@@ -11,7 +11,9 @@ class GlamAr private constructor(val accessKey: String) {
         @SuppressLint("StaticFieldLeak")
         @Volatile
         private var instance: GlamAr? = null
-        var BASE_URL = "https://cdn.glamarz0.de/sdk"
+        var BASE_URL = "https://cdn.glamar.io/sdk"
+        var API_URL = "https://api.pixelbin.io"
+
 
         @SuppressLint("SetJavaScriptEnabled")
         fun init(
@@ -23,15 +25,19 @@ class GlamAr private constructor(val accessKey: String) {
         ): GlamAr {
             GlamArLogger.init(debug)
 
+            // 1) Ensure instance exists BEFORE anything that might call getInstance()
+            val inst = instance ?: synchronized(this) {
+                instance ?: GlamAr(accessKey).also { instance = it }
+            }
+
+            // 2) Now it’s safe to prepare the WebView (which eventually calls getInstance())
             GlamArWebViewManager.prepareWebView(
                 context = context,
                 overrides = overrides,
                 providedWebView = webView
             )
 
-            return instance ?: synchronized(this) {
-                instance ?: GlamAr(accessKey).also { instance = it }
-            }
+            return inst
         }
 
         fun addEventListener(event: String, callback: (Any?) -> Unit) {
@@ -58,22 +64,31 @@ class GlamAr private constructor(val accessKey: String) {
             evaluateJavascript("window.parent.postMessage({ type: 'applyByMultipleConfigData' , payload: '${config}'  }, '*');")
         }
 
+        fun onAddedToCart(skuId: String) {
+            evaluateJavascript("window.parent.postMessage({ type: 'addedToCart',payload:$skuId } , '*');")
+        }
 
+        fun onAddedToWishlist(skuId: String) {
+            evaluateJavascript("window.parent.postMessage({ type: 'addedToWishlist',payload:$skuId } , '*');")
+        }
 
         fun applyPatternId(patternId: String) {
             evaluateJavascript("window.parent.postMessage({ type: 'applyPatternByID' , payload: { patternId: '${patternId}' } }, '*');")
         }
 
-        fun open() {
+        fun open(mode: String? = null,imgURL: String? = null ) {
+          if (!mode.isNullOrBlank())
+              evaluateJavascript("window.parent.postMessage({ type: 'openLivePreview' , payload: { mode:'${mode}', imgURL: '${imgURL}' } }, '*');")
+            else
             evaluateJavascript("window.parent.postMessage({ type: 'openLivePreview'}, '*');")
         }
 
-        fun openUploadMode(imgURl: String) {
-            evaluateJavascript("window.parent.postMessage({ type: 'openLivePreview' , payload: { mode:'imgTryOn' ,imgURL: '${imgURl}' } }, '*');")
-        }
 
         fun close() {
             evaluateJavascript("window.parent.postMessage({ type: 'closePreview'}, '*');")
+        }
+        fun back() {
+            evaluateJavascript("window.parent.postMessage({ type: 'backPreview'}, '*');")
         }
 
         fun snapshot() {
@@ -84,22 +99,16 @@ class GlamAr private constructor(val accessKey: String) {
             evaluateJavascript("window.parent.postMessage({ type: 'clearSku'} , '*');")
         }
 
-        fun comparison(option: String, value: String) {
-            val script = """
-        window.parent.postMessage({
-            type: 'comparison',
-            payload: {
-                options: '${option}',
-                value: '${value}'
-            }
-        }, '*');
-        """.trimIndent()
-
-            evaluateJavascript(script)
+        fun skinAnalysis(options: String) {
+            evaluateJavascript("window.parent.postMessage({ type: 'skinAnalysis' , payload: { options: '${options}' }  }, '*');")
         }
 
-        fun skinAnalysis(options: String, category: String) {
-            evaluateJavascript("window.parent.postMessage({ type: 'skin-analysis' , payload: { options: '${options}', value:'${category}' }  }, '*');")
+        fun eyePD(options: String) {
+            evaluateJavascript("window.parent.postMessage({ type: 'eyePD' , payload: { options: '${options}' }  }, '*');")
+        }
+
+        fun openUI(name: String) {
+            evaluateJavascript("window.parent.postMessage({ type: 'openUi' , payload: { name: '${name}' }  }, '*');")
         }
 
         private fun evaluateJavascript(script: String) {

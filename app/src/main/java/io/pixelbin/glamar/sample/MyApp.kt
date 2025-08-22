@@ -9,6 +9,7 @@ import io.pixelbin.glamar.GlamArLogger
 import io.pixelbin.glamar.model.Configuration
 import io.pixelbin.glamar.model.GlamAROverrides
 import io.pixelbin.glamar.model.GlobalConfig
+import io.pixelbin.glamar.model.SkinAnalysisConfig
 
 class MyApp : Application() {
     override fun onCreate() {
@@ -25,30 +26,26 @@ class MyApp : Application() {
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
             settings.javaScriptEnabled = true
             settings.mediaPlaybackRequiresUserGesture = false
-            val glamArHostUrl = "https://glamar.io/sdk/"
+            val glamArHostUrl = "https://cdn.glamar.io/sdk/"
             loadUrl(glamArHostUrl)
         }
 
         val overrides = GlamAROverrides(
-
+           // category = "skinanalysis",
             meta = mapOf(
                 "sdkVersion" to "2.0.0"
             ),
-            configuration = Configuration(
-
+//            configuration = Configuration(
 //                skinAnalysis = SkinAnalysisConfig(
-//                    version = "GlamGen",
-//                    defaultFilter = true,
-//                    startScreen = true
+//                    appId = "YOUR_APP_ID"
 //                ),
-
-            )
+//            )
         )
 
         // Initialise SDK
         GlamAr.init(
             context = this,
-            accessKey = "84145fd2-8b99-478b-a003-0cb4228f042e",
+            accessKey = "YOUR_ACCESS_KEY",
             overrides,
 //            webView,
 //            debug = BuildConfig.DEBUG,

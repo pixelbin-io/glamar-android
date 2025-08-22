@@ -52,15 +52,19 @@ class MainActivity : AppCompatActivity() {
 
 
         glamArChangeCategory.setOnClickListener {
-            GlamAr.skinAnalysis("changeCategory", "wrinkle")
+            GlamAr.skinAnalysis("start")
         }
 
         GlamAr.addEventListener("sku-applied") {
             GlamArLogger.d("Glam_MainActivity", "sku-applied callback")
         }
 
+        GlamAr.addEventListener("loaded") {
+            GlamArLogger.d("Glam_MainActivity", "loaded callback")
+        }
+
         applyBtn.setOnClickListener {
-            GlamAr.applySku(skuId = "48062362-cd9d-4a63-b755-3a9ed639f023")
+            GlamAr.applyByCategory("sunglasses")
         }
 
         clearBtn.setOnClickListener {

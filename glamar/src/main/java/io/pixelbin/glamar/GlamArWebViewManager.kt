@@ -12,6 +12,9 @@ import io.pixelbin.glamar.model.Configuration
 import io.pixelbin.glamar.model.GlamAROverrides
 import org.json.JSONObject
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
 @SuppressLint("StaticFieldLeak")
 object GlamArWebViewManager {
 
@@ -82,18 +85,45 @@ object GlamArWebViewManager {
                 }
             }, "Android")
 
-            val sdkVersion = (overRides?.meta?.get("sdkVersion") as? String)?.takeIf { it.isNotBlank() }
+            // Build the URL (as you already had)
+            val sdkMetaVersion = (overRides?.meta?.get("sdkVersion") as? String)?.takeIf { it.isNotBlank() }
 
-            val finalUrl = if (sdkVersion != null) {
-                "${GlamAr.BASE_URL}/v$sdkVersion?"
-            } else {
-                "${GlamAr.BASE_URL}?"
+
+
+            val api = GlamArApi(GlamAr.getInstance().accessKey, development = true)
+
+            api.getVersion { result ->
+                webView.post {
+                    result
+                        .onSuccess { sdkVersion ->
+                            GlamArLogger.d("GlamArWebViewManager", "Version API done (success: $sdkVersion). Proceeding to loadUrl.")
+                            val finalUrl = if (!sdkVersion.isNullOrBlank()) {
+                                "${GlamAr.BASE_URL}/v$sdkVersion?"
+                            } else {
+                                if (sdkMetaVersion != null) {
+                                    "${GlamAr.BASE_URL}/v$sdkMetaVersion?"
+                                } else {
+                                    "${GlamAr.BASE_URL}/v1.0.0?"
+                                }
+
+                            }
+                            webView.loadUrl(finalUrl)
+                        }
+                        .onFailure { e ->
+                            GlamArLogger.d("GlamArWebViewManager", "Version API failed: ${e.message}. Using fallback.")
+                            val finalUrl = if (sdkMetaVersion != null) {
+                                "${GlamAr.BASE_URL}/v$sdkMetaVersion?"
+                            } else {
+                                "${GlamAr.BASE_URL}/v1.0.0?"
+                            }
+                            webView.loadUrl(finalUrl)
+                        }
+                }
             }
-
-            GlamArLogger.d("GlamArWebViewManager", "Evaluating: $finalUrl")
-            webView.loadUrl(finalUrl)
+            // -------------------------------------------------------
         }
     }
+
 
     /**
      * Get the prepared WebView instance
@@ -164,9 +194,7 @@ object GlamArWebViewManager {
 
             config.skinAnalysis?.let { skin ->
                 val skinMap = mutableMapOf<String, Any>()
-                skin.version?.let { skinMap["version"] = it }
-                skin.defaultFilter?.let { skinMap["defaultFilter"] = it }
-                skin.startScreen?.let { skinMap["startScreen"] = it }
+                skin.appId?.let { skinMap["appId"] = it }
                 if (skinMap.isNotEmpty()) configMap["skinAnalysis"] = skinMap
             }
 
