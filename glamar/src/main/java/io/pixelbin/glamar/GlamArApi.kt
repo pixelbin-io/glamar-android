@@ -47,7 +47,7 @@ class GlamArApi(private val accessKey: String, private val development: Boolean 
 
     fun getVersion(callback: (Result<String?>) -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
-            val url = "${GlamAr.API_URL}/service/private/misc/v3.0/sdk-settings/versio"
+            val url = "${GlamAr.API_URL}/service/private/misc/v3.0/sdk-settings/version"
             val request = Request.Builder()
                 .url(url)
                 .header(
