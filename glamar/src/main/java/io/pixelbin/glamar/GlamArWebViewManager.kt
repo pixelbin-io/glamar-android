@@ -181,49 +181,15 @@ object GlamArWebViewManager {
 
         overRides?.category?.let { payload["category"] = it }
 
+        overRides?.meta?.let { payload["meta"] = it }
+
         overRides?.configuration?.let { config: Configuration ->
             val configMap = mutableMapOf<String, Any>()
-
-            config.global?.let { global ->
-                val globalMap = mutableMapOf<String, Any>()
-                global.openLiveOnInit?.let { globalMap["openLiveOnInit"] = it }
-                global.disableClose?.let { globalMap["disableClose"] = it }
-                global.disableBack?.let { globalMap["disableBack"] = it }
-                if (globalMap.isNotEmpty()) configMap["global"] = globalMap
-            }
 
             config.skinAnalysis?.let { skin ->
                 val skinMap = mutableMapOf<String, Any>()
                 skin.appId?.let { skinMap["appId"] = it }
                 if (skinMap.isNotEmpty()) configMap["skinAnalysis"] = skinMap
-            }
-
-            config.ui?.let { ui ->
-                val uiMap = mutableMapOf<String, Any>()
-
-                ui.loader?.let { loader ->
-                    val loaderMap = mutableMapOf<String, Any>()
-                    loader.disable?.let { loaderMap["disable"] = it }
-                    loader.jsonData?.let { loaderMap["jsonData"] = it }
-                    loader.backgroundColor?.let { loaderMap["backgroundColor"] = it }
-                    if (loaderMap.isNotEmpty()) uiMap["loader"] = loaderMap
-                }
-
-                ui.watermark?.let { watermark ->
-                    val watermarkMap = mutableMapOf<String, Any>()
-                    watermark.text?.let { watermarkMap["text"] = it }
-                    watermark.fontColor?.let { watermarkMap["fontColor"] = it }
-                    watermark.logo?.let { watermarkMap["logo"] = it }
-                    if (watermarkMap.isNotEmpty()) uiMap["watermark"] = watermarkMap
-                }
-
-                ui.ar?.let { ar ->
-                    val arMap = mutableMapOf<String, Any>()
-                    ar.disable3DUI?.let { arMap["disable3DUI"] = it }
-                    if (arMap.isNotEmpty()) uiMap["ar"] = arMap
-                }
-
-                if (uiMap.isNotEmpty()) configMap["ui"] = uiMap
             }
 
             if (configMap.isNotEmpty()) {

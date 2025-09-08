@@ -54,7 +54,7 @@ class GlamAr private constructor(val accessKey: String) {
             GlamArEventManager.removeEventListener(event)
         }
 
-        fun applySku(skuId: String) {
+        fun applyBySku(skuId: String) {
             evaluateJavascript("window.parent.postMessage({ type: 'applyBySku' , payload: { skuId: '${skuId}' } }, '*');")
         }
         fun applyByCategory(category: String) {
@@ -64,15 +64,15 @@ class GlamAr private constructor(val accessKey: String) {
             evaluateJavascript("window.parent.postMessage({ type: 'applyByMultipleConfigData' , payload: '${config}'  }, '*');")
         }
 
-        fun onAddedToCart(skuId: String) {
+        fun addedToCart(skuId: String) {
             evaluateJavascript("window.parent.postMessage({ type: 'addedToCart',payload:$skuId } , '*');")
         }
 
-        fun onAddedToWishlist(skuId: String) {
+        fun addedToWishlist(skuId: String) {
             evaluateJavascript("window.parent.postMessage({ type: 'addedToWishlist',payload:$skuId } , '*');")
         }
 
-        fun applyPatternId(patternId: String) {
+        fun applyPatternById(patternId: String) {
             evaluateJavascript("window.parent.postMessage({ type: 'applyPatternByID' , payload: { patternId: '${patternId}' } }, '*');")
         }
 
