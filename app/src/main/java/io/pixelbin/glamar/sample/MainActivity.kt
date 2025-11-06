@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         applyBtn.setOnClickListener {
-            GlamAr.applyByCategory("sunglasses")
+            GlamAr.applyByCategory("eyewear")
         }
 
         clearBtn.setOnClickListener {
