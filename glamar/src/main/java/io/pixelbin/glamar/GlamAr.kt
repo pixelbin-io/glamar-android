@@ -5,6 +5,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.webkit.WebView
 import io.pixelbin.glamar.model.GlamAROverrides
+import org.json.JSONArray
+import org.json.JSONObject
 
 class GlamAr private constructor(val accessKey: String) {
     companion object {
@@ -60,6 +62,24 @@ class GlamAr private constructor(val accessKey: String) {
         fun applyByCategory(category: String) {
             evaluateJavascript("window.parent.postMessage({ type: 'applyByCategory' , payload: '${category}'  }, '*');")
         }
+
+        fun comparison(state: String, skus: List<String>) {
+            val payload = JSONObject()
+                .put("state", state)
+                .put("skus", JSONArray(skus))
+
+            evaluateJavascript("window.parent.postMessage({ type: 'comparison', payload: $payload }, '*');")
+        }
+
+        fun onNailColorEvents(options: String? = null, value: Any? = null) {
+            val payload = JSONObject().apply {
+                options?.let { put("options", it) }
+                value?.let { put("value", JSONObject.wrap(it)) }
+            }
+
+            evaluateJavascript("window.parent.postMessage({ type: 'nailColor', payload: $payload }, '*');")
+        }
+
         fun applyByMultipleConfigData(config: (Any?) -> Unit) {
             evaluateJavascript("window.parent.postMessage({ type: 'applyByMultipleConfigData' , payload: '${config}'  }, '*');")
         }
