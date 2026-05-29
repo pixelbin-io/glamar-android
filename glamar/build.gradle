@@ -1,14 +1,18 @@
+import com.vanniktech.maven.publish.SonatypeHost
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id "com.vanniktech.maven.publish" version "0.29.0"
 }
 
 android {
     namespace 'io.pixelbin.glamar'
-    compileSdk 34
+    compileSdk = 36
 
     defaultConfig {
-        minSdk 26
+        minSdk = 26
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -39,4 +43,37 @@ dependencies {
     androidTestImplementation libs.androidx.espresso.core
     implementation libs.okhttp
     implementation(libs.gson)
+}
+
+mavenPublishing {
+    coordinates("io.pixelbin.glamar", "glamar", "2.0.2")
+
+    pom {
+        name = "GlamAR"
+        description = "The GlamAR SDK provides tools to integrate augmented reality (AR) features into your Android application"
+        inceptionYear = "2024"
+        url = "https://glamar.io"
+        licenses {
+            license {
+                name = "The Apache License, Version 2.0"
+                url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                distribution = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+            }
+        }
+        developers {
+            developer {
+                id = "pixelbin.io"
+                name = "PixelBin.io"
+                url = "https://github.com/pixelbin-io"
+            }
+        }
+        scm {
+            url = "https://github.com/pixelbin-io/glamar-android"
+            connection = "scm:git:git://github.com/pixelbin-io/glamar-android.git"
+            developerConnection = "scm:git:ssh://git@github.com/pixelbin-io/glamar-android.git"
+        }
+    }
+    configure(new AndroidSingleVariantLibrary("release", true, true))
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+    signAllPublications()
 }

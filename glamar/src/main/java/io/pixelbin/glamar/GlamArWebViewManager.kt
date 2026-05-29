@@ -1,38 +1,53 @@
 package io.pixelbin.glamar
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.app.Application
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import android.webkit.CookieManager
+import android.webkit.PermissionRequest
+import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout.LayoutParams
+import io.pixelbin.glamar.model.Configuration
+import io.pixelbin.glamar.model.GlamAROverrides
 import org.json.JSONObject
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @SuppressLint("StaticFieldLeak")
 object GlamArWebViewManager {
 
     private var webView: WebView? = null
-    private var glamArCallback: GlamArCallback? = null
-    private var pMode: PreviewMode = PreviewMode.None
-    private const val GLAM_AR_STAGING_URL = "https://glamarz0.de/sdk/"
-    private const val GLAM_AR_PROD_URL = "https://glamar.io/sdk/"
+    private var overRides: GlamAROverrides? = null;
+    private var applicationId: String = "";
+    private var activityContext: Context? = null;
 
     /**
      * Prepare a WebView instance with the given URL
      */
-    @SuppressLint("SetJavaScriptEnabled")
     fun prepareWebView(
-        context: Context, development: Boolean = true, previewMode: PreviewMode = PreviewMode.None
+        context: Context,
+        overrides: GlamAROverrides? = null,
+        providedWebView: WebView? = null
     ) {
         clearPreparedWebView() // clear old instance if there any
-        pMode = previewMode
+        overRides = overrides;
+        applicationId = context.packageName
+        GlamArLogger.d("GlamArWebViewManager", "Package ID: $applicationId")
 
-        webView = WebView(context).apply {
+        val actualWebView = providedWebView ?: WebView(context)
+        setupWebView(actualWebView)
+        webView = actualWebView
+    }
+
+    fun setUpActivityContext(context: Context) {
+        activityContext = context
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun setupWebView(webView: WebView) {
+        webView.apply {
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
             settings.javaScriptEnabled = true
             settings.mediaPlaybackRequiresUserGesture = false
@@ -40,53 +55,75 @@ object GlamArWebViewManager {
             webViewClient = object : WebViewClient() {
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
-                    Log.e("WebView", "onPageFinished: $url")
+                    GlamArLogger.d("WebView", "onPageFinished: $url")
                     initPreview()
                 }
             }
 
+            webChromeClient = object : WebChromeClient() {
+                override fun onPermissionRequest(request: PermissionRequest) {
+                    GlamArLogger.d("WebView", "onPermissionRequest: $request")
+                    activityContext?.let {
+                        GlamArPermissionHandler.handlePermissionRequest(it, request)
+                    }
+                }
+            }
+
+            removeJavascriptInterface("Android")
             addJavascriptInterface(object {
                 @android.webkit.JavascriptInterface
                 fun onLog(args: String) {
-                    Log.e("GlamAR", "onLog: $args")
+                    GlamArLogger.d("WebView", "onLog: $args")
                     try {
                         val argsJson = JSONObject(args)
                         val type = argsJson.getString("type")
-                        when (type) {
-                            "init-complete" -> glamArCallback?.onInitComplete()
-                            "loading" -> glamArCallback?.onLoading()
-                            "sku-applied" -> glamArCallback?.onSkuApplied()
-                            "sku-failed" -> glamArCallback?.onSkuFailed()
-                            "photo-loaded" -> {
-                                val payload = argsJson.getJSONObject("payload").toMap()
-                                glamArCallback?.onPhotoLoaded(payload)
-                            }
-
-                            "loaded" -> glamArCallback?.onLoaded(pMode)
-
-                            "error" -> {
-                                val errorMessage =
-                                    argsJson.optString("message", "Unknown error occurred")
-                                glamArCallback?.onError(errorMessage)
-                            }
-
-                            "face-analysis" -> {
-                                val payload = argsJson.getJSONObject("payload").toMap()
-                                glamArCallback?.onFaceAnalysisCompleted(payload)
-                            }
-                        }
+                        GlamArLogger.d("WebView", "Event received: $type")
+                        GlamArEventManager.dispatchEvent(type, argsJson)
                     } catch (e: Exception) {
-                        Log.e("GlamARView", "Error processing JavaScript message", e)
-                        glamArCallback?.onError("Error processing JavaScript message: ${e.message}")
+                        GlamArLogger.e("WebView", "Error processing JS message", e)
                     }
                 }
             }, "Android")
 
-            // Load the URL
-            val glamArHostUrl = if (development) GLAM_AR_STAGING_URL else GLAM_AR_PROD_URL
-            loadUrl(glamArHostUrl)
+            // Build the URL (as you already had)
+            val sdkMetaVersion = (overRides?.meta?.get("sdkVersion") as? String)?.takeIf { it.isNotBlank() }
+
+
+
+            val api = GlamArApi(GlamAr.getInstance().accessKey, development = true)
+
+            api.getVersion { result ->
+                webView.post {
+                    result
+                        .onSuccess { sdkVersion ->
+                            GlamArLogger.d("GlamArWebViewManager", "Version API done (success: $sdkVersion). Proceeding to loadUrl.")
+                            val finalUrl = if (!sdkVersion.isNullOrBlank()) {
+                                "${GlamAr.BASE_URL}/v$sdkVersion?"
+                            } else {
+                                if (sdkMetaVersion != null) {
+                                    "${GlamAr.BASE_URL}/v$sdkMetaVersion?"
+                                } else {
+                                    "${GlamAr.BASE_URL}/v1.0.0?"
+                                }
+
+                            }
+                            webView.loadUrl(finalUrl)
+                        }
+                        .onFailure { e ->
+                            GlamArLogger.d("GlamArWebViewManager", "Version API failed: ${e.message}. Using fallback.")
+                            val finalUrl = if (sdkMetaVersion != null) {
+                                "${GlamAr.BASE_URL}/v$sdkMetaVersion?"
+                            } else {
+                                "${GlamAr.BASE_URL}/v1.0.0?"
+                            }
+                            webView.loadUrl(finalUrl)
+                        }
+                }
+            }
+            // -------------------------------------------------------
         }
     }
+
 
     /**
      * Get the prepared WebView instance
@@ -105,13 +142,8 @@ object GlamArWebViewManager {
             CookieManager.getInstance().removeAllCookies(null)
             CookieManager.getInstance().flush()
         }
-    }
-
-    /**
-     * Set callback for WebView events
-     */
-    fun setGlamArCallBack(callback: GlamArCallback) {
-        glamArCallback = callback
+        webView = null
+        GlamArEventManager.clearAllListeners()
     }
 
     private fun JSONObject.toMap(): Map<String, Any> {
@@ -122,21 +154,60 @@ object GlamArWebViewManager {
      * Evaluate a JavaScript script in the WebView
      */
     fun evaluateJavascript(script: String) {
-        Log.d("GlamARView", "Evaluating: outside: $webView")
-        Log.d("GlamARView", "Evaluating: $script")
+        GlamArLogger.d("GlamArWebViewManager", "Evaluating: outside: $webView")
+        GlamArLogger.d("GlamArWebViewManager", "Evaluating: $script")
         webView?.evaluateJavascript(script) {
-            Log.d("GlamARView", "JavaScript evaluation result: $it")
+            GlamArLogger.d("GlamArWebViewManager", "JavaScript evaluation result: $it")
         }
     }
 
     fun initPreview() {
-
-        val script = when (pMode) {
-            is PreviewMode.None -> "window.parent.postMessage({ type: 'initialize', payload: {mode:'private', platform: 'android', apiKey:'${GlamAr.getInstance().accessKey}', disableCrossIcon: true, disablePrevIcon: true} }, '*');"
-            is PreviewMode.Image -> "window.parent.postMessage({ type: 'initialize', payload: {mode :'private', platform: 'android', apiKey:'${GlamAr.getInstance().accessKey}', disableCrossIcon: true, disablePrevIcon: true, openImageOnInit : '${(pMode as PreviewMode.Image).imageUrl}'} }, '*');"
-            is PreviewMode.Camera -> "window.parent.postMessage({ type: 'initialize', payload: {mode :'private', platform: 'android', apiKey:'${GlamAr.getInstance().accessKey}', disableCrossIcon: true, disablePrevIcon: true, openLiveOnInit : true} }, '*');"
-            is PreviewMode.FaceAnalysis -> "window.parent.postMessage({ type: 'initialize', payload: {mode :'private', platform: 'android', apiKey:'${GlamAr.getInstance().accessKey}', category: 'faceanalysis', disableCrossIcon: true, disablePrevIcon: false, openLiveOnInit : true, skinAnalysis : { useSkinAnalysisDefaultConcernFilter: true, useSkinAnalysisDefaultTrackingFilter: false, useSkinAnalysisDefaultUI: true }} }, '*');"
+        GlamArLogger.d("GlamArWebViewManager", "Init Preview")
+        // Initialize the SDK or perform any setup required
+        if (overRides == null) {
+            evaluateJavascript("window.parent.postMessage({ type: 'initialize', payload: { platform: 'android', apiKey:'${GlamAr.getInstance().accessKey}'}}, '*');");
+            return;
         }
-        evaluateJavascript(script)
+        val apiKey = GlamAr.getInstance().accessKey.ifEmpty { "" }
+        val platform = "android";
+
+        val payload = mutableMapOf<String, Any>(
+            "apiKey" to apiKey,
+            "platform" to platform,
+            "parentDomain" to applicationId,
+        )
+
+        GlamArLogger.d("GlamArWebViewManager", "payload: $payload")
+
+        overRides?.category?.let { payload["category"] = it }
+
+        overRides?.meta?.let { payload["meta"] = it }
+
+        overRides?.configuration?.let { config: Configuration ->
+            val configMap = mutableMapOf<String, Any>()
+
+            config.skinAnalysis?.let { skin ->
+                val skinMap = mutableMapOf<String, Any>()
+                skin.appId?.let { skinMap["appId"] = it }
+                if (skinMap.isNotEmpty()) configMap["skinAnalysis"] = skinMap
+            }
+
+            if (configMap.isNotEmpty()) {
+                payload["configuration"] = configMap
+            }
+            GlamArLogger.d("GlamArWebViewManager", "payload: $payload")
+        }
+
+        val jsonPayload = JSONObject(payload as Map<*, *>).toString()
+        GlamArLogger.d("GlamArWebViewManager", "jsonPayload: $jsonPayload")
+
+        val sciprt = """
+            window.parent.postMessage({
+                type: 'initialize',
+                payload: $jsonPayload
+            }, '*');
+        """.trimIndent()
+        evaluateJavascript(sciprt);
     }
+
 }

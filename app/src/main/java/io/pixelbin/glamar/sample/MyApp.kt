@@ -2,24 +2,50 @@ package io.pixelbin.glamar.sample
 
 import android.app.Application
 import android.os.Build
-import android.util.Log
 import android.webkit.WebView
-import io.pixelbin.galmar.sample.BuildConfig
+import android.widget.FrameLayout.LayoutParams
 import io.pixelbin.glamar.GlamAr
-import io.pixelbin.glamar.PreviewMode
+import io.pixelbin.glamar.GlamArLogger
+import io.pixelbin.glamar.model.GlamAROverrides
 
 class MyApp : Application() {
     override fun onCreate() {
         super.onCreate()
-        Log.d("TAG", "onCreate: ")
+        GlamArLogger.d("Glam_myApp", "onCreate: ")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            WebView.setWebContentsDebuggingEnabled(true);
+            WebView.setWebContentsDebuggingEnabled(true)
         }
+
+        val webView = WebView(
+            this
+        ).apply {
+            layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+            settings.javaScriptEnabled = true
+            settings.mediaPlaybackRequiresUserGesture = false
+            val glamArHostUrl = "https://cdn.glamar.io/sdk/"
+            loadUrl(glamArHostUrl)
+        }
+
+        val overrides = GlamAROverrides(
+            // category = "skinanalysis",
+            meta = mapOf(
+                "sdkVersion" to "2.0.0"
+            ),
+//            configuration = Configuration(
+//                skinAnalysis = SkinAnalysisConfig(
+//                    appId = "YOUR_APP_ID"
+//                ),
+//            )
+        )
+
         // Initialise SDK
-        GlamAr.initialize(
+        GlamAr.init(
             context = this,
-            accessKey = "62a16d1e", debug = BuildConfig.DEBUG, previewMode = PreviewMode.Image(imageUrl = "https://cdn.pixelbin.io/v2/glamar-fynd-835885/original/glamar-custom-data/models/makeup/2.jpg")
+            accessKey = "a9b90ac7-218e-4ee9-b0ba-acb6487f803b",
+            overrides,
+//            debug = BuildConfig.DEBUG,
         )
     }
 }
+

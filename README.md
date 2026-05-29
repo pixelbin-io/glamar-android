@@ -27,7 +27,7 @@ The GlamAR SDK is available on Maven Central. Add the following dependency to yo
 
 ```groovy
 dependencies {
-    implementation 'io.pixelbin.glamar:glamar:1.0.1'
+    implementation 'io.pixelbin.glamar:glamar:1.0.2'
 }
 ```
 
@@ -46,6 +46,8 @@ dependencies {
 }
 ```
 
+Sync your project with Gradle files.
+
 ## Required Permissions
 
 Add these permissions to your `AndroidManifest.xml`:
@@ -57,120 +59,138 @@ Add these permissions to your `AndroidManifest.xml`:
 
 ## Initialization
 
-Initialize the SDK in your Application class:
+Initialize the SDK in your Application class to ensure it is set up when your app starts.
 
 ```kotlin
 class MyApplication : Application() {
+
     override fun onCreate() {
         super.onCreate()
-        GlamAr.initialize(
-            context = this,
-            accessKey = "YOUR_ACCESS_KEY",
-            debug = BuildConfig.DEBUG,  // Set to true for development environment
-            previewMode = PreviewMode.Camera  // Or PreviewMode.Image for image-based preview
-        )
+        GlamAr.init(context = this, accessKey = "YOUR_ACCESS_KEY")
     }
 }
 ```
 
-## Usage
-
-### Basic Implementation
-
-1. Add GlamArView to your layout:
+Don't forget to register your `Application` class in the `AndroidManifest.xml`:
 
 ```xml
-<io.pixelbin.glamar.GlamArView
+<application
+    android:name=".MyApplication"
+    ... >
+    <!-- Other configurations -->
+</application>
+```
+
+This "init" will prompt our SDK to create a webview and open our SDK in it.
+
+## AR View
+
+### Setup
+
+To use the webview we have created you will need to add it your layout. Paste the following code inside your layout xml file where you want to show the webview.
+
+```xml
+<FrameLayout
     android:id="@+id/glamARView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+    android:layout_height="match_parent"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
 ```
 
-2. Setup callbacks and handle events:
+Inside the activity class add the following code:
 
 ```kotlin
-glamARView.setCallback(object : GlamArCallback {
-    override fun onError(error: String) {
-        // Handle error
-    }
-    
-    override fun onSuccess(message: String) {
-        // Handle success
-    }
-    
-    override fun onSnapshotTaken(base64Image: String) {
-        // Handle snapshot image
-    }
-})
-```
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        // This passes the activity context to the webview
+        GlamArWebViewManager.setUpActivityContext(this)
 
-### Key Features
-
-#### Preview Modes
-
-```kotlin
-// Camera preview mode
-glamARView.startPreview(previewMode = PreviewMode.Camera)
-
-// Image preview mode
-glamARView.startPreview(previewMode = PreviewMode.Image(imageUrl = "IMAGE_URL"))
-
-// No preview mode
-glamARView.startPreview(previewMode = PreviewMode.None)
-```
-
-#### Product Application
-
-```kotlin
-// Apply a specific SKU
-glamARView.applySku(skuId = "SKU_ID")
-
-// Clear applied products
-glamARView.clear()
-```
-
-#### Capture and Compare
-
-```kotlin
-// Take a snapshot
-glamARView.snapshot()
-
-// Toggle between original and modified view
-glamARView.toggle(showOriginal = true)
-```
-
-#### Configuration
-
-```kotlin
-// Adjust various parameters
-glamARView.configChange(options = "brightness", value = 1.2)
-```
-
-### API Integration
-
-```kotlin
-// Fetch SKU list
-GlamAr.getInstance().api.fetchSkuList(pageNo = 1, pageSize = 20) { result ->
-    result.onSuccess { response ->
-        // Handle SKU list
-    }.onFailure { exception ->
-        // Handle error
-    }
-}
-
-// Fetch specific SKU details
-GlamAr.getInstance().api.fetchSku(id = "SKU_ID") { result ->
-    result.onSuccess { item ->
-        // Handle SKU details
-    }.onFailure { exception ->
-        // Handle error
+        // This adds the webview created by SDK in the layout
+        GlamArWebViewManager.getPreparedWebView()?.let { webView ->
+            val glamARView = findViewById<FrameLayout>(R.id.glamARView)
+            glamARView.apply {
+                addView(webView)
+            }
+        }
     }
 }
 ```
 
-## Best Practices
+You should be able to see GlamAR SDK page being loaded.
 
-1. Always handle permissions appropriately:
+### Initialization options
+
+Opens the SDK Home screen with relevant category module setup.
+
+```kotline
+import io.pixelbin.glamar.model.GlamAROverrides
+
+val overrides = GlamAROverrides(
+    category = "sunglasses",
+)
+GlamAr.init(context = this, accessKey = "YOUR_ACCESS_KEY", overrides)
+```
+
+Open the SDK with Live mode (web camera) straightaway. This bypasses the SDK home screen.
+
+```kotline
+import io.pixelbin.glamar.model.GlamAROverrides
+import io.pixelbin.glamar.model.Configuration
+import io.pixelbin.glamar.model.GlobalConfig
+
+val overrides = GlamAROverrides(
+    category = "sunglasses",
+    configuration = Configuration(
+        global = GlobalConfig(
+            openLiveOnInit = true,
+        ),
+    )
+)
+GlamAr.init(context = this, accessKey = "YOUR_ACCESS_KEY", overrides)
+```
+
+Open SDK with disabled previous button and cross button.
+
+```kotline
+import io.pixelbin.glamar.model.GlamAROverrides
+import io.pixelbin.glamar.model.Configuration
+import io.pixelbin.glamar.model.GlobalConfig
+
+val overrides = GlamAROverrides(
+    category = "sunglasses",
+    configuration = Configuration(
+        global = GlobalConfig(
+            disableClose = true,
+            disableBack = false
+        ),
+    )
+)
+GlamAr.init(context = this, accessKey = "YOUR_ACCESS_KEY", overrides)
+```
+
+### Applying SKUs
+
+Apply a SKU:
+
+```kotlin
+GlamAr.applySku(skuId = "SKU_ID")
+```
+
+### Taking Snapshot
+
+Take a snapshot of the current view:
+
+```kotlin
+GlamAr.snapshot()
+```
+
+## Permissions
+
+Ensure that you handle permissions appropriately, especially for camera access when using `openLiveOnInit`.
+
 ```kotlin
 override fun onRequestPermissionsResult(
     requestCode: Int,
@@ -178,7 +198,41 @@ override fun onRequestPermissionsResult(
     grantResults: IntArray
 ) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    glamARView.onRequestPermissionsResult(requestCode, grantResults)
+    GlamArPermissionHandler.onRequestPermissionsResult(requestCode, grantResults)
+}
+```
+
+## Event Handling
+
+Event listeners are essential soon after initialization is called to start listening to GlamAR SDK callback events.
+
+### addEventListener
+
+```kotlin
+// Can be any event type sent from SDK
+GlamAR.addEventListener("sku-applied"){
+    GlamArLogger.d("TAG", "sku-applied callback")
+}
+```
+
+### removeEventListener
+Can also unregister from listening to events previously registered to but calling
+
+```kotlin
+GlamAR.removeEventListener("sku-applied")
+```
+
+## Best Practices
+
+1. Always handle permissions appropriately:
+```kotlin
+override fun onRequestPermissionsResult(
+  requestCode: Int,
+  permissions: Array<out String>,
+  grantResults: IntArray
+) {
+  super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+  GlamArPermissionHandler.onRequestPermissionsResult(requestCode, grantResults)
 }
 ```
 2. Initialize the SDK early in your application lifecycle
@@ -188,7 +242,9 @@ override fun onRequestPermissionsResult(
 
 ## Version History
 
-- 1.0.1 (Latest)
+- 1.0.2 (Latest)
+  - New updated GlamAR structure
+- 1.0.1
   - Maven Central release
   - Enhanced face tracking
   - Improved performance

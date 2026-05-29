@@ -1,5 +1,3 @@
-// GlamArApi.kt
-
 package io.pixelbin.glamar
 
 import com.google.gson.Gson
@@ -7,9 +5,6 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
-import io.pixelbin.glamar.model.Item
-import io.pixelbin.glamar.model.SkuItemResponse
-import io.pixelbin.glamar.model.SkuListResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,6 +24,7 @@ import java.util.Locale
 import java.util.TimeZone
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
+import org.json.JSONObject
 
 class GlamArApi(private val accessKey: String, private val development: Boolean = true) {
 
@@ -48,10 +44,10 @@ class GlamArApi(private val accessKey: String, private val development: Boolean 
             return gsonBuilder.create()
         }
 
-    fun fetchSkuList(pageNo: Int, pageSize: Int, callback: (Result<SkuListResponse>) -> Unit) {
+
+    fun getVersion(callback: (Result<String?>) -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
-            val url =
-                "${GlamAr.BASE_URL}/service/private/misc/v1.0/skus?pageNo=$pageNo&pageSize=$pageSize"
+            val url = "${GlamAr.API_URL}/service/private/misc/v3.0/sdk-settings/version"
             val request = Request.Builder()
                 .url(url)
                 .header(
@@ -62,44 +58,24 @@ class GlamArApi(private val accessKey: String, private val development: Boolean 
                 .build()
             try {
                 val response: Response = client.newCall(request).execute()
+                val bodyStr = response.body?.string()
+
                 if (response.isSuccessful) {
-                    val skuListResponse: SkuListResponse =
-                        gson.fromJson(response.body?.string(), SkuListResponse::class.java)
-                    callback(Result.success(skuListResponse))
+                    GlamArLogger.d("glamAPI", "response received: $bodyStr")
+                    val versionResponse = gson.fromJson(bodyStr, VersionResponse::class.java)
+                    callback(Result.success(versionResponse.sdkVersion))
                 } else {
-                    callback(Result.failure(IOException("Unexpected code ${response.code} ${response.body?.string()}")))
+                    GlamArLogger.d("glamAPI", "response error: ${response.code} $bodyStr")
+                    callback(Result.failure(IOException("HTTP ${response.code}")))
                 }
             } catch (e: IOException) {
+                GlamArLogger.e("glamAPI", "network error", e)
                 callback(Result.failure(e))
             }
         }
     }
 
-    fun fetchSku(id: String, callback: (Result<Item>) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val url = "${GlamAr.BASE_URL}/service/private/misc/v1.0/skus/$id"
-            val request = Request.Builder()
-                .url(url)
-                .header(
-                    "Authorization",
-                    "Bearer ${Base64.getEncoder().encodeToString(accessKey.toByteArray())}"
-                )
-                .get()
-                .build()
-            try {
-                val response: Response = client.newCall(request).execute()
-                if (response.isSuccessful) {
-                    val skuListResponse: Item =
-                        gson.fromJson(response.body?.string(), SkuItemResponse::class.java).item
-                    callback(Result.success(skuListResponse))
-                } else {
-                    callback(Result.failure(IOException("Unexpected code ${response.code} ${response.body?.string()}")))
-                }
-            } catch (e: IOException) {
-                callback(Result.failure(e))
-            }
-        }
-    }
+
 
     private class RequestSigningInterceptor(
         private val signingKey: String,
@@ -194,3 +170,8 @@ private class DateDeserializer : JsonDeserializer<Date> {
         return dateFormat.parse(json.asString)
     }
 }
+
+data class VersionResponse(
+    val success: Boolean,
+    val sdkVersion: String?
+)
