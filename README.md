@@ -1,6 +1,6 @@
 # GlamAR Android SDK
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.pixelbin.glamar/glamar.svg)](https://central.sonatype.com/artifact/io.pixelbin.glamar/glamar)
+[![Maven Central](https://img.shields.io/maven-central/v/com.glamar.sdk/glamar.svg)](https://central.sonatype.com/artifact/com.glamar.sdk/glamar)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## Overview
@@ -27,7 +27,7 @@ The GlamAR SDK is available on Maven Central. Add the following dependency to yo
 
 ```groovy
 dependencies {
-    implementation 'io.pixelbin.glamar:glamar:1.0.2'
+    implementation 'com.glamar.sdk:glamar:2.0.2'
 }
 ```
 
@@ -126,7 +126,7 @@ You should be able to see GlamAR SDK page being loaded.
 Opens the SDK Home screen with relevant category module setup.
 
 ```kotline
-import io.pixelbin.glamar.model.GlamAROverrides
+import com.glamar.sdk.model.GlamAROverrides
 
 val overrides = GlamAROverrides(
     category = "sunglasses",
@@ -137,9 +137,9 @@ GlamAr.init(context = this, accessKey = "YOUR_ACCESS_KEY", overrides)
 Open the SDK with Live mode (web camera) straightaway. This bypasses the SDK home screen.
 
 ```kotline
-import io.pixelbin.glamar.model.GlamAROverrides
-import io.pixelbin.glamar.model.Configuration
-import io.pixelbin.glamar.model.GlobalConfig
+import com.glamar.sdk.model.GlamAROverrides
+import com.glamar.sdk.model.Configuration
+import com.glamar.sdk.model.GlobalConfig
 
 val overrides = GlamAROverrides(
     category = "sunglasses",
@@ -155,9 +155,9 @@ GlamAr.init(context = this, accessKey = "YOUR_ACCESS_KEY", overrides)
 Open SDK with disabled previous button and cross button.
 
 ```kotline
-import io.pixelbin.glamar.model.GlamAROverrides
-import io.pixelbin.glamar.model.Configuration
-import io.pixelbin.glamar.model.GlobalConfig
+import com.glamar.sdk.model.GlamAROverrides
+import com.glamar.sdk.model.Configuration
+import com.glamar.sdk.model.GlobalConfig
 
 val overrides = GlamAROverrides(
     category = "sunglasses",

@@ -1,10 +1,10 @@
 // GlamAr.kt
-package io.pixelbin.glamar
+package com.glamar.sdk
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.webkit.WebView
-import io.pixelbin.glamar.model.GlamAROverrides
+import com.glamar.sdk.model.GlamAROverrides
 import org.json.JSONArray
 import org.json.JSONObject
 

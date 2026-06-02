@@ -4,9 +4,9 @@ import android.app.Application
 import android.os.Build
 import android.webkit.WebView
 import android.widget.FrameLayout.LayoutParams
-import io.pixelbin.glamar.GlamAr
-import io.pixelbin.glamar.GlamArLogger
-import io.pixelbin.glamar.model.GlamAROverrides
+import com.glamar.sdk.GlamAr
+import com.glamar.sdk.GlamArLogger
+import com.glamar.sdk.model.GlamAROverrides
 
 class MyApp : Application() {
     override fun onCreate() {
@@ -48,4 +48,3 @@ class MyApp : Application() {
         )
     }
 }
-

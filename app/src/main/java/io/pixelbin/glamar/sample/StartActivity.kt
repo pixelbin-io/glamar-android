@@ -7,7 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import io.pixelbin.glamar.GlamArLogger
+import com.glamar.sdk.GlamArLogger
 
 class StartActivity : AppCompatActivity() {
 

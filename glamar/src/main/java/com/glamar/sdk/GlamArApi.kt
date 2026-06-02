@@ -1,4 +1,4 @@
-package io.pixelbin.glamar
+package com.glamar.sdk
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder

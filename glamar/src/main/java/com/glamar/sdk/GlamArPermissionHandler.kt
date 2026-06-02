@@ -1,4 +1,4 @@
-package io.pixelbin.glamar
+package com.glamar.sdk
 
 import android.app.Activity
 import android.content.Context

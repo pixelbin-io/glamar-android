@@ -1,4 +1,4 @@
-package io.pixelbin.glamar.model
+package com.glamar.sdk.model
 
 data class GlamAROverrides(
     val category: String? = null,
