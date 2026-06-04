@@ -1,4 +1,4 @@
-package com.glamar.sdk
+package io.pixelbin.glamar
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -8,8 +8,8 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout.LayoutParams
-import com.glamar.sdk.model.Configuration
-import com.glamar.sdk.model.GlamAROverrides
+import io.pixelbin.glamar.model.Configuration
+import io.pixelbin.glamar.model.GlamAROverrides
 import org.json.JSONObject
 
 import kotlinx.coroutines.Dispatchers

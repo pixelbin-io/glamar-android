@@ -1,4 +1,4 @@
-package com.glamar.sdk
+package io.pixelbin.glamar
 
 typealias GlamArEventCallback = (Any?) -> Unit
 

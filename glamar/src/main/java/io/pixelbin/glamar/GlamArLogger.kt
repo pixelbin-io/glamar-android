@@ -1,4 +1,4 @@
-package com.glamar.sdk
+package io.pixelbin.glamar
 
 import android.util.Log
 

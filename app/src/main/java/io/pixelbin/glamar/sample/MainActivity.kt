@@ -7,10 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.glamar.sdk.GlamAr
-import com.glamar.sdk.GlamArLogger
-import com.glamar.sdk.GlamArPermissionHandler
-import com.glamar.sdk.GlamArWebViewManager
+import io.pixelbin.glamar.GlamAr
+import io.pixelbin.glamar.GlamArLogger
+import io.pixelbin.glamar.GlamArPermissionHandler
+import io.pixelbin.glamar.GlamArWebViewManager
 
 
 class MainActivity : AppCompatActivity() {

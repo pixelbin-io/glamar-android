@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace 'com.glamar.sdk'
+    namespace 'io.pixelbin.glamar'
     compileSdk = 36
 
     defaultConfig {
@@ -46,7 +46,7 @@ dependencies {
 }
 
 mavenPublishing {
-    coordinates("com.glamar.sdk", "glamar", "2.0.2")
+    coordinates("io.pixelbin.glamar", "glamar", "2.0.2")
 
     pom {
         name = "GlamAR"

@@ -16,7 +16,7 @@ okhttp = "4.12.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-glamar = { module = "com.glamar.sdk:glamar", version.ref = "glamar" }
+glamar = { module = "io.pixelbin.glamar:glamar", version.ref = "glamar" }
 glamar-android = { module = "com.github.pixelbin-io:glamar-android", version.ref = "glamarAndroid" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
