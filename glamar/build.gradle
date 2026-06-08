@@ -46,7 +46,7 @@ dependencies {
 }
 
 mavenPublishing {
-    coordinates("io.pixelbin.glamar", "glamar", "2.0.2")
+    coordinates("io.pixelbin.glamar", "glamar", "2.0.3")
 
     pom {
         name = "GlamAR"

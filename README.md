@@ -27,7 +27,7 @@ The GlamAR SDK is available on Maven Central. Add the following dependency to yo
 
 ```groovy
 dependencies {
-    implementation 'io.pixelbin.glamar:glamar:2.0.2'
+    implementation 'io.pixelbin.glamar:glamar:2.0.3'
 }
 ```
 
