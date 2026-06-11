@@ -4,6 +4,7 @@ package io.pixelbin.glamar
 import android.annotation.SuppressLint
 import android.content.Context
 import android.webkit.WebView
+import io.pixelbin.glamar.model.ConfigData
 import io.pixelbin.glamar.model.GlamAROverrides
 import org.json.JSONArray
 import org.json.JSONObject
@@ -78,6 +79,15 @@ class GlamAr private constructor(val accessKey: String) {
             }
 
             evaluateJavascript("window.parent.postMessage({ type: 'nailColor', payload: $payload }, '*');")
+        }
+
+        fun configChange(type: String, value: Number) {
+            val configData = ConfigData(type = type, value = value)
+            val payload = JSONObject()
+                .put("type", configData.type)
+                .put("value", configData.value)
+
+            evaluateJavascript("window.parent.postMessage({ type: 'onConfigChange', payload: $payload }, '*');")
         }
 
         fun applyByMultipleConfigData(config: (Any?) -> Unit) {

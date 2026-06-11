@@ -48,4 +48,3 @@ class MyApp : Application() {
         )
     }
 }
-

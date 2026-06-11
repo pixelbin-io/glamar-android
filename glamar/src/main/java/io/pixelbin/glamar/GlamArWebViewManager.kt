@@ -91,8 +91,9 @@ object GlamArWebViewManager {
 
 
             val api = GlamArApi(GlamAr.getInstance().accessKey, development = true)
+            val skinAnalysisAppId = overRides?.configuration?.skinAnalysis?.appId
 
-            api.getVersion { result ->
+            api.getVersion(appId = skinAnalysisAppId) { result ->
                 webView.post {
                     result
                         .onSuccess { sdkVersion ->
