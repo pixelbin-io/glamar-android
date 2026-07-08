@@ -125,8 +125,9 @@ class GlamAr private constructor(val accessKey: String) {
             evaluateJavascript("window.parent.postMessage({ type: 'snapshot'} , '*');")
         }
 
-        fun reset() {
-            evaluateJavascript("window.parent.postMessage({ type: 'clearSku'} , '*');")
+        @JvmOverloads
+        fun reset(value: Any? = null) {
+            sendClearSku(normalizeClearSkuPayload(value))
         }
 
         fun skinAnalysis(options: String) {
@@ -143,6 +144,57 @@ class GlamAr private constructor(val accessKey: String) {
 
         private fun evaluateJavascript(script: String) {
             GlamArWebViewManager.evaluateJavascript(script)
+        }
+
+        private fun normalizeClearSkuPayload(value: Any?): JSONObject? {
+            if (value == null) return null
+
+            if (value is String) {
+                return if (value.isEmpty()) {
+                    null
+                } else {
+                    JSONObject().put("subCategory", value)
+                }
+            }
+
+            if (value !is Map<*, *>) return null
+
+            val payload = JSONObject()
+            val subCategory = value["subCategory"]
+            val skuIds = normalizeSkuIds(value["skuIds"])
+
+            if (subCategory is String && subCategory.isNotEmpty()) {
+                payload.put("subCategory", subCategory)
+            }
+
+            if (skuIds != null && skuIds.length() > 0) {
+                payload.put("skuIds", skuIds)
+            }
+
+            return if (payload.length() == 0) null else payload
+        }
+
+        private fun normalizeSkuIds(value: Any?): JSONArray? {
+            val items = when (value) {
+                is Collection<*> -> value.toList()
+                is Array<*> -> value.toList()
+                is JSONArray -> (0 until value.length()).map { value.opt(it) }
+                else -> return null
+            }
+
+            if (items.isEmpty() || items.any { it !is String }) return null
+
+            return JSONArray().apply {
+                items.forEach { put(it) }
+            }
+        }
+
+        private fun sendClearSku(payload: JSONObject?) {
+            if (payload != null) {
+                evaluateJavascript("window.parent.postMessage({ type: 'clearSku', payload: $payload }, '*');")
+            } else {
+                evaluateJavascript("window.parent.postMessage({ type: 'clearSku' }, '*');")
+            }
         }
 
         fun getInstance(): GlamAr {
