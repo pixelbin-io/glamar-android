@@ -14,8 +14,8 @@ class GlamAr private constructor(val accessKey: String) {
         @SuppressLint("StaticFieldLeak")
         @Volatile
         private var instance: GlamAr? = null
-        var BASE_URL = "https://cdn.glamar.io/sdk"
-        var API_URL = "https://api.pixelbin.io"
+        var BASE_URL = "https://cdn.glamarz0.de/sdk"
+        var API_URL = "https://api.pixelbinz0.de"
 
 
         @SuppressLint("SetJavaScriptEnabled")
@@ -134,6 +134,15 @@ class GlamAr private constructor(val accessKey: String) {
             evaluateJavascript("window.parent.postMessage({ type: 'skinAnalysis' , payload: { options: '${options}' }  }, '*');")
         }
 
+        fun setViewportMirrored(enable: Boolean) {
+          val option = if (enable == true) "start" else "close"
+          val payload = JSONObject()
+            .put("options", option)
+
+          evaluateJavascript("window.parent.postMessage({ type: 'mirrorMode', payload: $payload }, '*');")
+        }
+
+
         fun eyePD(options: String) {
             evaluateJavascript("window.parent.postMessage({ type: 'eyePD' , payload: { options: '${options}' }  }, '*');")
         }
@@ -144,6 +153,14 @@ class GlamAr private constructor(val accessKey: String) {
 
         private fun evaluateJavascript(script: String) {
             GlamArWebViewManager.evaluateJavascript(script)
+        }
+
+        private fun emitError(message: String) {
+            val payload = JSONObject()
+                .put("message", message)
+
+            GlamArLogger.e("GlamAR", message)
+            GlamArEventManager.dispatchEvent("error", payload)
         }
 
         private fun normalizeClearSkuPayload(value: Any?): JSONObject? {
