@@ -134,8 +134,8 @@ class GlamAr private constructor(val accessKey: String) {
             evaluateJavascript("window.parent.postMessage({ type: 'skinAnalysis' , payload: { options: '${options}' }  }, '*');")
         }
 
-        fun setViewportMirrored(enable: Boolean) {
-          val option = if (enable == true) "start" else "close"
+        fun setViewportMirrored(state: Boolean) {
+          val option = if (state == true) "start" else "close"
           val payload = JSONObject()
             .put("options", option)
 
