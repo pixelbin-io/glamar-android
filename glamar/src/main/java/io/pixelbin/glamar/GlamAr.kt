@@ -14,8 +14,13 @@ class GlamAr private constructor(val accessKey: String) {
         @SuppressLint("StaticFieldLeak")
         @Volatile
         private var instance: GlamAr? = null
-        var BASE_URL = "https://cdn.glamarz0.de/sdk"
-        var API_URL = "https://api.pixelbinz0.de"
+        private const val DEBUG_BASE_URL = "https://cdn.glamarz0.de/sdk"
+        private const val DEBUG_API_URL = "https://api.pixelbinz0.de"
+        private const val PRODUCTION_BASE_URL = "https://cdn.glamar.io/sdk"
+        private const val PRODUCTION_API_URL = "https://api.pixelbin.io"
+
+        var BASE_URL = PRODUCTION_BASE_URL
+        var API_URL = PRODUCTION_API_URL
 
 
         @SuppressLint("SetJavaScriptEnabled")
@@ -27,6 +32,7 @@ class GlamAr private constructor(val accessKey: String) {
             debug: Boolean = false,
         ): GlamAr {
             GlamArLogger.init(debug)
+            configureUrls(debug)
 
             // 1) Ensure instance exists BEFORE anything that might call getInstance()
             val inst = instance ?: synchronized(this) {
@@ -41,6 +47,11 @@ class GlamAr private constructor(val accessKey: String) {
             )
 
             return inst
+        }
+
+        private fun configureUrls(debug: Boolean) {
+            BASE_URL = if (debug) DEBUG_BASE_URL else PRODUCTION_BASE_URL
+            API_URL = if (debug) DEBUG_API_URL else PRODUCTION_API_URL
         }
 
         fun addEventListener(event: String, callback: (Any?) -> Unit) {
@@ -81,11 +92,24 @@ class GlamAr private constructor(val accessKey: String) {
             evaluateJavascript("window.parent.postMessage({ type: 'nailColor', payload: $payload }, '*');")
         }
 
-        fun configChange(type: String, value: Number) {
-            val configData = ConfigData(type = type, value = value)
-            val payload = JSONObject()
-                .put("type", configData.type)
-                .put("value", configData.value)
+        @JvmOverloads
+        fun configChange(
+            type: String,
+            value: Number? = null,
+            skuId: String? = null,
+            subCategory: String? = null
+        ) {
+            val configData = ConfigData(
+                type = type,
+                value = value,
+                skuId = skuId,
+                subCategory = subCategory
+            )
+            val payload = JSONObject().put("type", configData.type)
+
+            configData.value?.let { payload.put("value", it) }
+            configData.skuId?.let { payload.put("skuId", it) }
+            configData.subCategory?.let { payload.put("subCategory", it) }
 
             evaluateJavascript("window.parent.postMessage({ type: 'onConfigChange', payload: $payload }, '*');")
         }
