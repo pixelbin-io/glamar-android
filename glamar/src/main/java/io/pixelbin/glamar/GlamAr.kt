@@ -14,8 +14,8 @@ class GlamAr private constructor(val accessKey: String) {
         @SuppressLint("StaticFieldLeak")
         @Volatile
         private var instance: GlamAr? = null
-        private const val DEBUG_BASE_URL = "https://cdn.glamarz0.de/sdk"
-        private const val DEBUG_API_URL = "https://api.pixelbinz0.de"
+        private const val DEBUG_BASE_URL = "https://cdn.glamar.io/sdk"
+        private const val DEBUG_API_URL = "https://api.pixelbin.io"
         private const val PRODUCTION_BASE_URL = "https://cdn.glamar.io/sdk"
         private const val PRODUCTION_API_URL = "https://api.pixelbin.io"
 
