@@ -46,5 +46,7 @@ data class ARConfig(
 
 data class ConfigData(
     val type: String,
-    val value: Number
+    val value: Number? = null,
+    val skuId: String? = null,
+    val subCategory: String? = null
 )

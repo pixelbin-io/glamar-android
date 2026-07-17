@@ -42,9 +42,9 @@ class MyApp : Application() {
         // Initialise SDK
         GlamAr.init(
             context = this,
-            accessKey = "a9b90ac7-218e-4ee9-b0ba-acb6487f803b",
+            accessKey = "25cd4d7a-fe7d-4fc4-af1b-608414bf0c99",
             overrides,
-//            debug = BuildConfig.DEBUG,
+            debug = false,
         )
     }
 }
