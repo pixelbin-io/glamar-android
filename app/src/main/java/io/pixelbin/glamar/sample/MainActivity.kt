@@ -11,6 +11,7 @@ import io.pixelbin.glamar.GlamAr
 import io.pixelbin.glamar.GlamArLogger
 import io.pixelbin.glamar.GlamArPermissionHandler
 import io.pixelbin.glamar.GlamArWebViewManager
+import io.pixelbin.glamar.model.ApplyCatalogOptions
 
 
 class MainActivity : AppCompatActivity() {
@@ -63,8 +64,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         applyBtn.setOnClickListener {
-            GlamAr.applyByCategory("eyewear")
+            GlamAr.applyByCategory(
+                category = "makeup",
+                options = ApplyCatalogOptions(storeFront = "store_a")
+            )
         }
+
 
         clearBtn.setOnClickListener {
             GlamAr.close()

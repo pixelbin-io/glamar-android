@@ -1,6 +1,6 @@
 [versions]
 agp = "8.9.1"
-glamar = "2.0.6"
+glamar = "2.0.7"
 glamarAndroid = "main"
 gson = "2.11.0"
 kotlin = "2.2.21"

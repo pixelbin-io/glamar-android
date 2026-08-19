@@ -44,7 +44,7 @@ class MyApp : Application() {
             context = this,
             accessKey = "25cd4d7a-fe7d-4fc4-af1b-608414bf0c99",
             overrides,
-            debug = false,
+            debug = true,
         )
     }
 }
