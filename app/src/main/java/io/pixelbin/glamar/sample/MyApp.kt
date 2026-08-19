@@ -6,10 +6,7 @@ import android.webkit.WebView
 import android.widget.FrameLayout.LayoutParams
 import io.pixelbin.glamar.GlamAr
 import io.pixelbin.glamar.GlamArLogger
-import io.pixelbin.glamar.model.Configuration
 import io.pixelbin.glamar.model.GlamAROverrides
-import io.pixelbin.glamar.model.GlobalConfig
-import io.pixelbin.glamar.model.SkinAnalysisConfig
 
 class MyApp : Application() {
     override fun onCreate() {
@@ -31,7 +28,7 @@ class MyApp : Application() {
         }
 
         val overrides = GlamAROverrides(
-           // category = "skinanalysis",
+            // category = "skinanalysis",
             meta = mapOf(
                 "sdkVersion" to "2.0.0"
             ),
@@ -45,12 +42,9 @@ class MyApp : Application() {
         // Initialise SDK
         GlamAr.init(
             context = this,
-            accessKey = "YOUR_ACCESS_KEY",
+            accessKey = "25cd4d7a-fe7d-4fc4-af1b-608414bf0c99",
             overrides,
-//            webView,
-//            debug = BuildConfig.DEBUG,
-
+            debug = true,
         )
     }
 }
-

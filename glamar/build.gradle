@@ -9,10 +9,10 @@ plugins {
 
 android {
     namespace 'io.pixelbin.glamar'
-    compileSdk 34
+    compileSdk = 36
 
     defaultConfig {
-        minSdk 26
+        minSdk = 26
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -46,7 +46,7 @@ dependencies {
 }
 
 mavenPublishing {
-    coordinates("io.pixelbin.glamar", "glamar", "1.0.2")
+    coordinates("io.pixelbin.glamar", "glamar", "2.0.7")
 
     pom {
         name = "GlamAR"

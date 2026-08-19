@@ -8,6 +8,7 @@ import com.google.gson.JsonElement
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -45,9 +46,15 @@ class GlamArApi(private val accessKey: String, private val development: Boolean 
         }
 
 
-    fun getVersion(callback: (Result<String?>) -> Unit) {
+    fun getVersion(appId: String? = null, callback: (Result<String?>) -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
             val url = "${GlamAr.API_URL}/service/private/misc/v3.0/sdk-settings/version"
+                .toHttpUrl()
+                .newBuilder()
+                .apply {
+                    appId?.takeIf { it.isNotBlank() }?.let { addQueryParameter("appId", it) }
+                }
+                .build()
             val request = Request.Builder()
                 .url(url)
                 .header(

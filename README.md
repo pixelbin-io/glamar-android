@@ -27,7 +27,7 @@ The GlamAR SDK is available on Maven Central. Add the following dependency to yo
 
 ```groovy
 dependencies {
-    implementation 'io.pixelbin.glamar:glamar:1.0.2'
+    implementation 'io.pixelbin.glamar:glamar:2.0.7'
 }
 ```
 
@@ -176,7 +176,28 @@ GlamAr.init(context = this, accessKey = "YOUR_ACCESS_KEY", overrides)
 Apply a SKU:
 
 ```kotlin
-GlamAr.applySku(skuId = "SKU_ID")
+GlamAr.applyBySku(skuId = "SKU_ID")
+```
+
+### Applying catalog categories
+
+Apply a catalog category or subcategory. Pass `ApplyCatalogOptions` when the
+catalog should be resolved for a specific storefront:
+
+```kotlin
+import io.pixelbin.glamar.model.ApplyCatalogOptions
+
+GlamAr.applyByCategory("eyewear")
+GlamAr.applyByCategory(
+    category = "eyewear",
+    options = ApplyCatalogOptions(storeFront = "STORE_FRONT")
+)
+
+GlamAr.applyBySubCategory("sunglasses")
+GlamAr.applyBySubCategory(
+    subCategory = "sunglasses",
+    options = ApplyCatalogOptions(storeFront = "STORE_FRONT")
+)
 ```
 
 ### Taking Snapshot
