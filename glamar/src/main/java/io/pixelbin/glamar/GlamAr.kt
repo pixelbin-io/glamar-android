@@ -4,6 +4,7 @@ package io.pixelbin.glamar
 import android.annotation.SuppressLint
 import android.content.Context
 import android.webkit.WebView
+import io.pixelbin.glamar.model.ApplyCatalogOptions
 import io.pixelbin.glamar.model.ConfigData
 import io.pixelbin.glamar.model.GlamAROverrides
 import org.json.JSONArray
@@ -71,8 +72,42 @@ class GlamAr private constructor(val accessKey: String) {
         fun applyBySku(skuId: String) {
             evaluateJavascript("window.parent.postMessage({ type: 'applyBySku' , payload: { skuId: '${skuId}' } }, '*');")
         }
-        fun applyByCategory(category: String) {
-            evaluateJavascript("window.parent.postMessage({ type: 'applyByCategory' , payload: '${category}'  }, '*');")
+        @JvmOverloads
+        fun applyByCategory(category: String, options: ApplyCatalogOptions? = null) {
+            val payload = if (options != null) {
+                JSONObject()
+                    .put("category", category)
+                    .put(
+                        "options",
+                        JSONObject().apply {
+                            options.storeFront?.let { put("storeFront", it) }
+                        }
+                    )
+                    .toString()
+            } else {
+                JSONObject.quote(category)
+            }
+
+            evaluateJavascript("window.parent.postMessage({ type: 'applyByCategory', payload: $payload }, '*');")
+        }
+
+        @JvmOverloads
+        fun applyBySubCategory(subCategory: String, options: ApplyCatalogOptions? = null) {
+            val payload = if (options != null) {
+                JSONObject()
+                    .put("subCategory", subCategory)
+                    .put(
+                        "options",
+                        JSONObject().apply {
+                            options.storeFront?.let { put("storeFront", it) }
+                        }
+                    )
+                    .toString()
+            } else {
+                JSONObject.quote(subCategory)
+            }
+
+            evaluateJavascript("window.parent.postMessage({ type: 'applyBySubCategory', payload: $payload }, '*');")
         }
 
         fun comparison(state: String, skus: List<String>) {
