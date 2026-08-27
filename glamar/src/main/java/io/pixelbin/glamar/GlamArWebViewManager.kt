@@ -22,6 +22,8 @@ object GlamArWebViewManager {
     private var overRides: GlamAROverrides? = null;
     private var applicationId: String = "";
     private var activityContext: Context? = null;
+    @Volatile
+    private var loading = true
 
     /**
      * Prepare a WebView instance with the given URL
@@ -31,6 +33,7 @@ object GlamArWebViewManager {
         overrides: GlamAROverrides? = null,
         providedWebView: WebView? = null
     ) {
+        loading = true
         clearPreparedWebView() // clear old instance if there any
         overRides = overrides;
         applicationId = context.packageName
@@ -77,6 +80,9 @@ object GlamArWebViewManager {
                     try {
                         val argsJson = JSONObject(args)
                         val type = argsJson.getString("type")
+                        if (type == "loaded") {
+                            loading = false
+                        }
                         GlamArLogger.d("WebView", "Event received: $type")
                         GlamArEventManager.dispatchEvent(type, argsJson)
                     } catch (e: Exception) {
@@ -132,6 +138,8 @@ object GlamArWebViewManager {
     fun getPreparedWebView(): WebView? {
         return webView
     }
+
+    fun isLoading(): Boolean = loading
 
     /**
      * Clear the current WebView instance

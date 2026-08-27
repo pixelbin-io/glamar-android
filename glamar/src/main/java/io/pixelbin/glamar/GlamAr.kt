@@ -6,7 +6,10 @@ import android.content.Context
 import android.webkit.WebView
 import io.pixelbin.glamar.model.ApplyCatalogOptions
 import io.pixelbin.glamar.model.ConfigData
+import io.pixelbin.glamar.model.ExperienceOptions
 import io.pixelbin.glamar.model.GlamAROverrides
+import io.pixelbin.glamar.model.SkinAnalysisExperienceOptions
+import io.pixelbin.glamar.model.VtoExperienceOptions
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -15,7 +18,7 @@ class GlamAr private constructor(val accessKey: String) {
         @SuppressLint("StaticFieldLeak")
         @Volatile
         private var instance: GlamAr? = null
-        private const val DEBUG_BASE_URL = "https://cdn.glamar.io/sdk"
+        private const val DEBUG_BASE_URL = "https://cdn.glamarz0.de/sdk"
         private const val DEBUG_API_URL = "https://api.pixelbin.io"
         private const val PRODUCTION_BASE_URL = "https://cdn.glamar.io/sdk"
         private const val PRODUCTION_API_URL = "https://api.pixelbin.io"
@@ -191,6 +194,87 @@ class GlamAr private constructor(val accessKey: String) {
 
         fun skinAnalysis(options: String) {
             evaluateJavascript("window.parent.postMessage({ type: 'skinAnalysis' , payload: { options: '${options}' }  }, '*');")
+        }
+
+        fun setExperience(experience: String, options: VtoExperienceOptions) {
+            setExperienceInternal(experience, options)
+        }
+
+        fun setExperience(experience: String, options: SkinAnalysisExperienceOptions) {
+            setExperienceInternal(experience, options)
+        }
+
+        private fun setExperienceInternal(experience: String, options: ExperienceOptions) {
+            if (GlamArWebViewManager.isLoading()) {
+                failExperienceChange(experience, "GlamAR Module is still loading")
+                return
+            }
+
+            if (experience == "skinAnalysis") {
+                val appId = (options as? SkinAnalysisExperienceOptions)
+                    ?.appId
+                    .normalizeExperienceValue()
+                if (appId.isEmpty()) {
+                    failExperienceChange(
+                        experience,
+                        "SkinAnalysis experience requires a valid appId"
+                    )
+                    return
+                }
+                sendExperienceChange(experience, JSONObject().put("appId", appId))
+                return
+            }
+
+            if (experience != "vto") {
+                failExperienceChange(
+                    experience,
+                    "Experience must be either vto or skinAnalysis"
+                )
+                return
+            }
+
+            val vtoOptions = options as? VtoExperienceOptions
+            val category = vtoOptions?.category.normalizeExperienceValue()
+            if (category.isNotEmpty()) {
+                sendExperienceChange(experience, JSONObject().put("category", category))
+                return
+            }
+
+            val subCategory = vtoOptions?.subCategory.normalizeExperienceValue()
+            if (subCategory.isNotEmpty()) {
+                sendExperienceChange(experience, JSONObject().put("subCategory", subCategory))
+                return
+            }
+
+            val skuId = vtoOptions?.skuId.normalizeExperienceValue()
+            if (skuId.isNotEmpty()) {
+                sendExperienceChange(experience, JSONObject().put("skuId", skuId))
+                return
+            }
+
+            failExperienceChange(
+                experience,
+                "VTO experience requires category, subCategory, or skuId"
+            )
+        }
+
+        private fun String?.normalizeExperienceValue(): String = this?.trim().orEmpty()
+
+        private fun sendExperienceChange(experience: String, options: JSONObject) {
+            val payload = JSONObject()
+                .put("experience", experience)
+                .put("options", options)
+            evaluateJavascript(
+                "window.parent.postMessage({ type: 'setExperience', payload: $payload }, '*');"
+            )
+        }
+
+        private fun failExperienceChange(experience: String, error: String) {
+            emitError(error)
+            val payload = JSONObject()
+                .put("experience", experience)
+                .put("error", error)
+            GlamArEventManager.dispatchEvent("experience-change-failed", payload)
         }
 
         fun setViewportMirrored(state: Boolean) {

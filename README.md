@@ -200,6 +200,33 @@ GlamAr.applyBySubCategory(
 )
 ```
 
+### Changing experiences
+
+Change to a VTO experience using a category, subcategory, or SKU:
+
+```kotlin
+import io.pixelbin.glamar.model.VtoExperienceOptions
+
+GlamAr.setExperience(
+    experience = "vto",
+    options = VtoExperienceOptions(category = "makeup")
+)
+```
+
+Change to Skin Analysis using its application ID:
+
+```kotlin
+import io.pixelbin.glamar.model.SkinAnalysisExperienceOptions
+
+GlamAr.setExperience(
+    experience = "skinAnalysis",
+    options = SkinAnalysisExperienceOptions(appId = "YOUR_APP_ID")
+)
+```
+
+Call `setExperience` after the SDK emits its `loaded` event. Invalid or early
+requests emit `error` and `experience-change-failed` events.
+
 ### Taking Snapshot
 
 Take a snapshot of the current view:
