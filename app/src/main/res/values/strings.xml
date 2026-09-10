@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">GlamAR Sample</string>
+    <string name="intro_title">GlamAR</string>
+    <string name="intro_description">Choose an experience and enter your credentials to get started.</string>
+    <string name="mode_vto">VTO</string>
+    <string name="mode_skin_analysis">Skin analysis</string>
+    <string name="vto_description">Explore virtual try-on with your VTO access key.</string>
+    <string name="skin_analysis_description">Run skin analysis with your access key and app ID.</string>
+    <string name="vto_access_key">VTO access key</string>
+    <string name="skin_analysis_access_key">Skin analysis access key</string>
+    <string name="skin_analysis_app_id">App ID</string>
+    <string name="launch_vto">Launch VTO</string>
+    <string name="launch_skin_analysis">Launch skin analysis</string>
+    <string name="access_key_required">Enter an access key</string>
+    <string name="app_id_required">Enter an app ID</string>
+    <string name="start_skin_analysis">Start skin analysis</string>
 </resources>

@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
+import com.google.gson.JsonParseException
+import io.pixelbin.glamar.model.VersionApiResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,7 +27,6 @@ import java.util.Locale
 import java.util.TimeZone
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
-import org.json.JSONObject
 
 class GlamArApi(private val accessKey: String, private val development: Boolean = true) {
 
@@ -47,39 +48,96 @@ class GlamArApi(private val accessKey: String, private val development: Boolean 
 
 
     fun getVersion(appId: String? = null, callback: (Result<String?>) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val url = "${GlamAr.API_URL}/service/private/misc/v3.0/sdk-settings/version"
-                .toHttpUrl()
-                .newBuilder()
-                .apply {
-                    appId?.takeIf { it.isNotBlank() }?.let { addQueryParameter("appId", it) }
-                }
-                .build()
-            val request = Request.Builder()
-                .url(url)
-                .header(
-                    "Authorization",
-                    "Bearer ${Base64.getEncoder().encodeToString(accessKey.toByteArray())}"
-                )
-                .get()
-                .build()
-            try {
-                val response: Response = client.newCall(request).execute()
-                val bodyStr = response.body?.string()
+        getVersion(appId = appId, onResponse = {}, callback = callback)
+    }
 
+    /**
+     * Reports each attempt on the IO thread, including failed responses.
+     * Set debug to check that environment before SDK initialization; otherwise the current URLs are used.
+     */
+    fun getVersion(
+        appId: String? = null,
+        debug: Boolean? = null,
+        onResponse: (VersionApiResponse) -> Unit,
+        callback: (Result<String?>) -> Unit
+    ) {
+        val (apiUrl, fallbackApiUrl) = GlamAr.versionApiUrls(debug)
+        CoroutineScope(Dispatchers.IO).launch {
+            val primaryResult = fetchVersion(
+                "$apiUrl/service/private/glamar/v3.0/sdk-settings/version",
+                appId,
+                onResponse
+            )
+            val result = if (primaryResult.isFailure) {
+                GlamArLogger.d("glamAPI", "GlamAR version API failed. Retrying with Pixelbin.")
+                fetchVersion(
+                    "$fallbackApiUrl/service/private/misc/v3.0/sdk-settings/version",
+                    appId,
+                    onResponse
+                )
+            } else {
+                primaryResult
+            }
+            callback(result)
+        }
+    }
+
+    private fun fetchVersion(
+        apiUrl: String,
+        appId: String?,
+        onResponse: (VersionApiResponse) -> Unit
+    ): Result<String?> {
+        val url = apiUrl.toHttpUrl()
+            .newBuilder()
+            .apply {
+                appId?.takeIf { it.isNotBlank() }?.let { addQueryParameter("appId", it) }
+            }
+            .build()
+        val request = Request.Builder()
+            .url(url)
+            .header(
+                "Authorization",
+                "Bearer ${Base64.getEncoder().encodeToString(accessKey.toByteArray())}"
+            )
+            .get()
+            .build()
+
+        var statusCode: Int? = null
+        var responseBody: String? = null
+        val result: Result<String?> = try {
+            client.newCall(request).execute().use { response ->
+                statusCode = response.code
+                val bodyStr = response.body?.string()
+                responseBody = bodyStr
                 if (response.isSuccessful) {
                     GlamArLogger.d("glamAPI", "response received: $bodyStr")
                     val versionResponse = gson.fromJson(bodyStr, VersionResponse::class.java)
-                    callback(Result.success(versionResponse.sdkVersion))
+                    Result.success(versionResponse?.sdkVersion)
                 } else {
                     GlamArLogger.d("glamAPI", "response error: ${response.code} $bodyStr")
-                    callback(Result.failure(IOException("HTTP ${response.code}")))
+                    Result.failure(IOException("HTTP ${response.code}"))
                 }
-            } catch (e: IOException) {
-                GlamArLogger.e("glamAPI", "network error", e)
-                callback(Result.failure(e))
             }
+        } catch (e: IOException) {
+            GlamArLogger.e("glamAPI", "network error", e)
+            Result.failure(e)
+        } catch (e: JsonParseException) {
+            GlamArLogger.e("glamAPI", "invalid version response", e)
+            Result.failure(e)
         }
+
+        try {
+            onResponse(VersionApiResponse(
+                url = url.toString(),
+                statusCode = statusCode,
+                body = responseBody,
+                error = result.exceptionOrNull()?.let { it.message ?: it.javaClass.simpleName }
+            ))
+        } catch (e: Exception) {
+            // A diagnostic listener must not interrupt version resolution or its fallback.
+            GlamArLogger.e("glamAPI", "version response listener failed", e)
+        }
+        return result
     }
 
 

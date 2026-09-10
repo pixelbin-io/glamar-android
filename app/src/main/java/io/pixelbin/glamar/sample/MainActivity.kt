@@ -1,6 +1,10 @@
 package io.pixelbin.glamar.sample
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.webkit.WebView
 import android.widget.Button
 import android.widget.FrameLayout
 import androidx.activity.enableEdgeToEdge
@@ -12,9 +16,25 @@ import io.pixelbin.glamar.GlamArLogger
 import io.pixelbin.glamar.GlamArPermissionHandler
 import io.pixelbin.glamar.GlamArWebViewManager
 import io.pixelbin.glamar.model.ApplyCatalogOptions
+import io.pixelbin.glamar.model.Configuration
+import io.pixelbin.glamar.model.GlamAROverrides
+import io.pixelbin.glamar.model.SkinAnalysisConfig
 
 
 class MainActivity : AppCompatActivity() {
+    private var sdkWebView: WebView? = null
+
+    companion object {
+        private const val EXTRA_ACCESS_KEY = "access_key"
+        private const val EXTRA_SKIN_ANALYSIS_APP_ID = "skin_analysis_app_id"
+
+        fun createIntent(context: Context, accessKey: String, skinAnalysisAppId: String?): Intent {
+            return Intent(context, MainActivity::class.java).apply {
+                putExtra(EXTRA_ACCESS_KEY, accessKey)
+                skinAnalysisAppId?.let { putExtra(EXTRA_SKIN_ANALYSIS_APP_ID, it) }
+            }
+        }
+    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -29,7 +49,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        GlamArWebViewManager.setUpActivityContext(this)
+        val accessKey = intent.getStringExtra(EXTRA_ACCESS_KEY)
+        val appId = intent.getStringExtra(EXTRA_SKIN_ANALYSIS_APP_ID)
+        if (accessKey.isNullOrBlank() || (appId != null && appId.isBlank())) {
+            finish()
+            return
+        }
+        val isSkinAnalysis = appId != null
 
         setContentView(R.layout.activity_main)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -38,7 +64,22 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        GlamArWebViewManager.getPreparedWebView()?.let { webView ->
+        val overrides = GlamAROverrides(
+            category = if (isSkinAnalysis) "skinanalysis" else null,
+            configuration = appId?.let {
+                Configuration(skinAnalysis = SkinAnalysisConfig(appId = it))
+            },
+            meta = mapOf("sdkVersion" to "2.0.0")
+        )
+        GlamAr.init(
+            context = this,
+            accessKey = accessKey,
+            overrides = overrides,
+            debug = BuildConfig.DEBUG
+        )
+        GlamArWebViewManager.setUpActivityContext(this)
+        sdkWebView = GlamArWebViewManager.getPreparedWebView()
+        sdkWebView?.let { webView ->
             val glamARView = findViewById<FrameLayout>(R.id.glamARView)
             glamARView.apply {
                 addView(webView)
@@ -50,6 +91,10 @@ class MainActivity : AppCompatActivity() {
         val download = findViewById<Button>(R.id.download)
         val glamArChangeCategory = findViewById<Button>(R.id.glamArChangeCategory)
 
+        applyBtn.visibility = if (isSkinAnalysis) View.GONE else View.VISIBLE
+        findViewById<View>(R.id.move).visibility = if (isSkinAnalysis) View.GONE else View.VISIBLE
+        glamArChangeCategory.visibility = if (isSkinAnalysis) View.VISIBLE else View.GONE
+        glamArChangeCategory.setText(R.string.start_skin_analysis)
 
         glamArChangeCategory.setOnClickListener {
             GlamAr.skinAnalysis("start")
@@ -65,8 +110,7 @@ class MainActivity : AppCompatActivity() {
 
         applyBtn.setOnClickListener {
             GlamAr.applyByCategory(
-                category = "makeup",
-                options = ApplyCatalogOptions(storeFront = "store_a")
+                category = "makeup"
             )
         }
 
@@ -78,5 +122,23 @@ class MainActivity : AppCompatActivity() {
         download.setOnClickListener {
             GlamAr.snapshot()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        sdkWebView?.onResume()
+    }
+
+    override fun onPause() {
+        sdkWebView?.onPause()
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        if (sdkWebView != null && GlamArWebViewManager.getPreparedWebView() === sdkWebView) {
+            GlamArWebViewManager.releaseWebView()
+        }
+        sdkWebView = null
+        super.onDestroy()
     }
 }
