@@ -9,6 +9,9 @@ import io.pixelbin.glamar.model.ConfigData
 import io.pixelbin.glamar.model.GlamAROverrides
 import org.json.JSONArray
 import org.json.JSONObject
+import io.pixelbin.glamar.model.ExperienceOptions
+import io.pixelbin.glamar.model.SkinAnalysisExperienceOptions
+import io.pixelbin.glamar.model.VtoExperienceOptions
 
 class GlamAr private constructor(val accessKey: String) {
     companion object {
@@ -124,13 +127,90 @@ class GlamAr private constructor(val accessKey: String) {
             evaluateJavascript("window.parent.postMessage({ type: 'applyBySubCategory', payload: $payload }, '*');")
         }
 
-        fun comparison(state: String, skus: List<String>) {
-            val payload = JSONObject()
-                .put("state", state)
-                .put("skus", JSONArray(skus))
-
-            evaluateJavascript("window.parent.postMessage({ type: 'comparison', payload: $payload }, '*');")
+        fun setExperience(experience: String, options: VtoExperienceOptions) {
+          setExperienceInternal(experience, options)
         }
+
+        fun setExperience(experience: String, options: SkinAnalysisExperienceOptions) {
+          setExperienceInternal(experience, options)
+        }
+
+        private fun setExperienceInternal(experience: String, options: ExperienceOptions) {
+          if (experience == "skinAnalysis") {
+            val appId = (options as? SkinAnalysisExperienceOptions)
+              ?.appId
+              .normalizeExperienceValue()
+            if (appId.isEmpty()) {
+              failExperienceChange(
+                experience,
+                "SkinAnalysis experience requires a valid appId"
+              )
+              return
+            }
+            sendExperienceChange(experience, JSONObject().put("appId", appId))
+            return
+          }
+
+          if (experience != "vto") {
+            failExperienceChange(
+              experience,
+              "Experience must be either vto or skinAnalysis"
+            )
+            return
+          }
+
+          val vtoOptions = options as? VtoExperienceOptions
+          val category = vtoOptions?.category.normalizeExperienceValue()
+          if (category.isNotEmpty()) {
+            sendExperienceChange(experience, JSONObject().put("category", category))
+            return
+          }
+
+          val subCategory = vtoOptions?.subCategory.normalizeExperienceValue()
+          if (subCategory.isNotEmpty()) {
+            sendExperienceChange(experience, JSONObject().put("subCategory", subCategory))
+            return
+          }
+
+          val skuId = vtoOptions?.skuId.normalizeExperienceValue()
+          if (skuId.isNotEmpty()) {
+            sendExperienceChange(experience, JSONObject().put("skuId", skuId))
+            return
+          }
+
+          failExperienceChange(
+            experience,
+            "VTO experience requires category, subCategory, or skuId"
+          )
+        }
+
+        private fun String?.normalizeExperienceValue(): String = this?.trim().orEmpty()
+
+        private fun sendExperienceChange(experience: String, options: JSONObject) {
+          val payload = JSONObject()
+            .put("experience", experience)
+            .put("options", options)
+          evaluateJavascript(
+            "window.parent.postMessage({ type: 'setExperience', payload: $payload }, '*');"
+          )
+        }
+
+        private fun failExperienceChange(experience: String, error: String) {
+          emitError(error)
+          val payload = JSONObject()
+            .put("experience", experience)
+            .put("error", error)
+          GlamArEventManager.dispatchEvent("experience-change-failed", payload)
+        }
+
+
+        fun comparison(state: String, skus: List<String>) {
+              val payload = JSONObject()
+                  .put("state", state)
+                  .put("skus", JSONArray(skus))
+
+              evaluateJavascript("window.parent.postMessage({ type: 'comparison', payload: $payload }, '*');")
+          }
 
         fun onNailColorEvents(options: String? = null, value: Any? = null) {
             val payload = JSONObject().apply {
@@ -290,5 +370,7 @@ class GlamAr private constructor(val accessKey: String) {
         fun getInstance(): GlamAr {
             return instance ?: throw Exception("GlamAR not initialized. Call initialize() first.")
         }
+
+
     }
 }
