@@ -2,6 +2,7 @@ package io.pixelbin.glamar
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
@@ -56,7 +57,7 @@ object GlamArWebViewManager {
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
                     GlamArLogger.d("WebView", "onPageFinished: $url")
-                    initPreview()
+                    if (view === GlamArWebViewManager.webView) initPreview()
                 }
             }
 
@@ -95,6 +96,7 @@ object GlamArWebViewManager {
 
             api.getVersion(appId = skinAnalysisAppId) { result ->
                 webView.post {
+                    if (GlamArWebViewManager.webView !== webView) return@post
                     result
                         .onSuccess { sdkVersion ->
                             GlamArLogger.d("GlamArWebViewManager", "Version API done (success: $sdkVersion). Proceeding to loadUrl.")
@@ -131,6 +133,22 @@ object GlamArWebViewManager {
      */
     fun getPreparedWebView(): WebView? {
         return webView
+    }
+
+    /** Release the SDK view when its host screen closes. */
+    fun releaseWebView() {
+        val currentWebView = webView
+        webView = null
+        activityContext = null
+        overRides = null
+        GlamArEventManager.clearAllListeners()
+        currentWebView?.apply {
+            stopLoading()
+            (parent as? ViewGroup)?.removeView(this)
+            removeJavascriptInterface("Android")
+            webChromeClient = null
+            destroy()
+        }
     }
 
     /**

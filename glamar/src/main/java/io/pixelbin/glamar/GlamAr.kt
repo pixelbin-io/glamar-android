@@ -16,12 +16,15 @@ class GlamAr private constructor(val accessKey: String) {
         @Volatile
         private var instance: GlamAr? = null
         private const val DEBUG_BASE_URL = "https://cdn.glamar.io/sdk"
-        private const val DEBUG_API_URL = "https://api.pixelbin.io"
+        private const val DEBUG_API_URL = "https://api.glamar.fynd.com"
+        private const val DEBUG_FALLBACK_API_URL = "https://api.pixelbin.io"
         private const val PRODUCTION_BASE_URL = "https://cdn.glamar.io/sdk"
-        private const val PRODUCTION_API_URL = "https://api.pixelbin.io"
+        private const val PRODUCTION_API_URL = "https://api.glamar.fynd.com"
+        private const val PRODUCTION_FALLBACK_API_URL = "https://api.pixelbin.io"
 
         var BASE_URL = PRODUCTION_BASE_URL
         var API_URL = PRODUCTION_API_URL
+        var FALLBACK_API_URL = PRODUCTION_FALLBACK_API_URL
 
 
         @SuppressLint("SetJavaScriptEnabled")
@@ -35,9 +38,10 @@ class GlamAr private constructor(val accessKey: String) {
             GlamArLogger.init(debug)
             configureUrls(debug)
 
-            // 1) Ensure instance exists BEFORE anything that might call getInstance()
-            val inst = instance ?: synchronized(this) {
-                instance ?: GlamAr(accessKey).also { instance = it }
+            // Reinitialization must use the credentials supplied for the new session.
+            val inst = synchronized(this) {
+                instance?.takeIf { it.accessKey == accessKey }
+                    ?: GlamAr(accessKey).also { instance = it }
             }
 
             // 2) Now it’s safe to prepare the WebView (which eventually calls getInstance())
@@ -52,7 +56,17 @@ class GlamAr private constructor(val accessKey: String) {
 
         private fun configureUrls(debug: Boolean) {
             BASE_URL = if (debug) DEBUG_BASE_URL else PRODUCTION_BASE_URL
-            API_URL = if (debug) DEBUG_API_URL else PRODUCTION_API_URL
+            val (apiUrl, fallbackApiUrl) = versionApiUrls(debug)
+            API_URL = apiUrl
+            FALLBACK_API_URL = fallbackApiUrl
+        }
+
+        internal fun versionApiUrls(debug: Boolean?): Pair<String, String> {
+            return when (debug) {
+                true -> DEBUG_API_URL to DEBUG_FALLBACK_API_URL
+                false -> PRODUCTION_API_URL to PRODUCTION_FALLBACK_API_URL
+                null -> API_URL to FALLBACK_API_URL
+            }
         }
 
         fun addEventListener(event: String, callback: (Any?) -> Unit) {
