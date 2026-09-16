@@ -15,10 +15,11 @@ import io.pixelbin.glamar.GlamAr
 import io.pixelbin.glamar.GlamArLogger
 import io.pixelbin.glamar.GlamArPermissionHandler
 import io.pixelbin.glamar.GlamArWebViewManager
-import io.pixelbin.glamar.model.ApplyCatalogOptions
 import io.pixelbin.glamar.model.Configuration
 import io.pixelbin.glamar.model.GlamAROverrides
 import io.pixelbin.glamar.model.SkinAnalysisConfig
+import io.pixelbin.glamar.model.SkinAnalysisExperienceOptions
+import io.pixelbin.glamar.model.VtoExperienceOptions
 
 
 class MainActivity : AppCompatActivity() {
@@ -109,8 +110,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         applyBtn.setOnClickListener {
-            GlamAr.applyByCategory(
-                category = "makeup"
+            GlamAr.setExperience(
+                experience = "vto",
+                options = VtoExperienceOptions(category = "makeup")
             )
         }
 
@@ -120,7 +122,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         download.setOnClickListener {
-            GlamAr.snapshot()
+            GlamAr.setExperience(
+                experience = "skinAnalysis",
+                options = SkinAnalysisExperienceOptions(appId = "0732f85d-5768-462e-a50a-174840438a69")
+            )
         }
     }
 
