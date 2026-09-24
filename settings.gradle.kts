@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "GalmAR Sample"
+rootProject.name = "GlamAR Sample"
 include(":app")
 include(":glamar")
