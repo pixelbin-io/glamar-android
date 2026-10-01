@@ -52,8 +52,8 @@ class GlamArApi(private val accessKey: String, private val development: Boolean 
     }
 
     /**
-     * Reports each attempt on the IO thread, including failed responses.
-     * Set debug to check that environment before SDK initialization; otherwise the current URLs are used.
+     * Reports the Fynd version API response on the IO thread, including failures.
+     * Set debug to check that environment before SDK initialization; otherwise the current URL is used.
      */
     fun getVersion(
         appId: String? = null,
@@ -61,23 +61,13 @@ class GlamArApi(private val accessKey: String, private val development: Boolean 
         onResponse: (VersionApiResponse) -> Unit,
         callback: (Result<String?>) -> Unit
     ) {
-        val (apiUrl, fallbackApiUrl) = GlamAr.versionApiUrls(debug)
+        val apiUrl = GlamAr.versionApiUrl(debug)
         CoroutineScope(Dispatchers.IO).launch {
-            val primaryResult = fetchVersion(
+            val result = fetchVersion(
                 "$apiUrl/service/private/glamar/v3.0/sdk-settings/version",
                 appId,
                 onResponse
             )
-            val result = if (primaryResult.isFailure) {
-                GlamArLogger.d("glamAPI", "GlamAR version API failed. Retrying with Pixelbin.")
-                fetchVersion(
-                    "$fallbackApiUrl/service/private/misc/v3.0/sdk-settings/version",
-                    appId,
-                    onResponse
-                )
-            } else {
-                primaryResult
-            }
             callback(result)
         }
     }
@@ -134,7 +124,7 @@ class GlamArApi(private val accessKey: String, private val development: Boolean 
                 error = result.exceptionOrNull()?.let { it.message ?: it.javaClass.simpleName }
             ))
         } catch (e: Exception) {
-            // A diagnostic listener must not interrupt version resolution or its fallback.
+            // A diagnostic listener must not interrupt version resolution.
             GlamArLogger.e("glamAPI", "version response listener failed", e)
         }
         return result

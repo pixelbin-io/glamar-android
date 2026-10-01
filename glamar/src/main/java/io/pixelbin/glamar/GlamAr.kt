@@ -20,14 +20,11 @@ class GlamAr private constructor(val accessKey: String) {
         private var instance: GlamAr? = null
         private const val DEBUG_BASE_URL = "https://cdn.glamar.io/sdk"
         private const val DEBUG_API_URL = "https://api.glamar.fynd.com"
-        private const val DEBUG_FALLBACK_API_URL = "https://api.pixelbin.io"
         private const val PRODUCTION_BASE_URL = "https://cdn.glamar.io/sdk"
         private const val PRODUCTION_API_URL = "https://api.glamar.fynd.com"
-        private const val PRODUCTION_FALLBACK_API_URL = "https://api.pixelbin.io"
 
         var BASE_URL = PRODUCTION_BASE_URL
         var API_URL = PRODUCTION_API_URL
-        var FALLBACK_API_URL = PRODUCTION_FALLBACK_API_URL
 
 
         @SuppressLint("SetJavaScriptEnabled")
@@ -59,16 +56,14 @@ class GlamAr private constructor(val accessKey: String) {
 
         private fun configureUrls(debug: Boolean) {
             BASE_URL = if (debug) DEBUG_BASE_URL else PRODUCTION_BASE_URL
-            val (apiUrl, fallbackApiUrl) = versionApiUrls(debug)
-            API_URL = apiUrl
-            FALLBACK_API_URL = fallbackApiUrl
+            API_URL = versionApiUrl(debug)
         }
 
-        internal fun versionApiUrls(debug: Boolean?): Pair<String, String> {
+        internal fun versionApiUrl(debug: Boolean?): String {
             return when (debug) {
-                true -> DEBUG_API_URL to DEBUG_FALLBACK_API_URL
-                false -> PRODUCTION_API_URL to PRODUCTION_FALLBACK_API_URL
-                null -> API_URL to FALLBACK_API_URL
+                true -> DEBUG_API_URL
+                false -> PRODUCTION_API_URL
+                null -> API_URL
             }
         }
 

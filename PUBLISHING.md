@@ -5,7 +5,7 @@ This is a minimal guide for publishing the GlamAR Android SDK to Maven Central v
 ## Prerequisites
 
 - Ensure you have the latest version code ready
-- Update the version number in the Gradle build file (`coordinates("io.pixelbin.glamar", "glamar", "1.0.1")`)
+- Update the version number in the Gradle build file (`coordinates("io.pixelbin.glamar", "glamar", "3.0.0")`)
 - Create and push a git tag matching the version
 
 ## Repository Information
