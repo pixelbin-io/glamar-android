@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "io.pixelbin.galmar.sample"
-    compileSdk = 34
+    namespace = "io.pixelbin.glamar.sample"
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "io.pixelbin.galmar.sample"
+        applicationId = "io.pixelbin.glamar.sample"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 

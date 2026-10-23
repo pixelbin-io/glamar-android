@@ -43,3 +43,10 @@ data class WatermarkConfig(
 data class ARConfig(
     val disable3DUI: Boolean? = null
 )
+
+data class ConfigData(
+    val type: String,
+    val value: Number? = null,
+    val skuId: String? = null,
+    val subCategory: String? = null
+)
